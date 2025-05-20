@@ -1,22 +1,20 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:trans_video_x/features/video/view/info_screen.dart';
 import 'package:trans_video_x/features/video/view/youtube_page.dart';
 import 'package:trans_video_x/features/config/view/config_screen.dart';
 
 
 @RoutePage()
-
-class VideoScreen extends ConsumerStatefulWidget {
-  const VideoScreen({super.key});
+class DownloadScreen extends ConsumerStatefulWidget {
+  const DownloadScreen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _VideoScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _DownloadScreenState();
 }
 
-class _VideoScreenState extends ConsumerState<VideoScreen>  with TickerProviderStateMixin {
-
+class _DownloadScreenState extends ConsumerState<DownloadScreen> with TickerProviderStateMixin {
 
 late TabController _tabController;
 

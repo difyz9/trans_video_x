@@ -9,24 +9,27 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i8;
+import 'package:auto_route/auto_route.dart' as _i10;
+import 'package:flutter/material.dart' as _i11;
 import 'package:trans_video_x/core/layout/view/content_screen.dart' as _i1;
-import 'package:trans_video_x/core/layout/view/layout_screen.dart' as _i3;
-import 'package:trans_video_x/features/home/home_screen.dart' as _i2;
-import 'package:trans_video_x/features/home/upload_screen.dart' as _i6;
-import 'package:trans_video_x/features/settings/setting_screen.dart' as _i4;
-import 'package:trans_video_x/features/task/view/task_screen.dart' as _i5;
-import 'package:trans_video_x/features/video/video_screen.dart' as _i7;
+import 'package:trans_video_x/core/layout/view/layout_screen.dart' as _i4;
+import 'package:trans_video_x/features/home/home_screen.dart' as _i3;
+import 'package:trans_video_x/features/home/upload_screen.dart' as _i7;
+import 'package:trans_video_x/features/settings/setting_screen.dart' as _i5;
+import 'package:trans_video_x/features/task/view/task_screen.dart' as _i6;
+import 'package:trans_video_x/features/video/video_screen.dart' as _i8;
+import 'package:trans_video_x/features/video/view/download_screen.dart' as _i2;
+import 'package:trans_video_x/features/video/view/youtube_page.dart' as _i9;
 
 /// generated route for
 /// [_i1.ContentScreen]
-class ContentRoute extends _i8.PageRouteInfo<void> {
-  const ContentRoute({List<_i8.PageRouteInfo>? children})
+class ContentRoute extends _i10.PageRouteInfo<void> {
+  const ContentRoute({List<_i10.PageRouteInfo>? children})
     : super(ContentRoute.name, initialChildren: children);
 
   static const String name = 'ContentRoute';
 
-  static _i8.PageInfo page = _i8.PageInfo(
+  static _i10.PageInfo page = _i10.PageInfo(
     name,
     builder: (data) {
       return const _i1.ContentScreen();
@@ -35,97 +38,150 @@ class ContentRoute extends _i8.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i2.HomeScreen]
-class HomeRoute extends _i8.PageRouteInfo<void> {
-  const HomeRoute({List<_i8.PageRouteInfo>? children})
+/// [_i2.DownloadScreen]
+class DownloadRoute extends _i10.PageRouteInfo<void> {
+  const DownloadRoute({List<_i10.PageRouteInfo>? children})
+    : super(DownloadRoute.name, initialChildren: children);
+
+  static const String name = 'DownloadRoute';
+
+  static _i10.PageInfo page = _i10.PageInfo(
+    name,
+    builder: (data) {
+      return const _i2.DownloadScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [_i3.HomeScreen]
+class HomeRoute extends _i10.PageRouteInfo<void> {
+  const HomeRoute({List<_i10.PageRouteInfo>? children})
     : super(HomeRoute.name, initialChildren: children);
 
   static const String name = 'HomeRoute';
 
-  static _i8.PageInfo page = _i8.PageInfo(
+  static _i10.PageInfo page = _i10.PageInfo(
     name,
     builder: (data) {
-      return const _i2.HomeScreen();
+      return const _i3.HomeScreen();
     },
   );
 }
 
 /// generated route for
-/// [_i3.LayoutScreen]
-class LayoutRoute extends _i8.PageRouteInfo<void> {
-  const LayoutRoute({List<_i8.PageRouteInfo>? children})
+/// [_i4.LayoutScreen]
+class LayoutRoute extends _i10.PageRouteInfo<void> {
+  const LayoutRoute({List<_i10.PageRouteInfo>? children})
     : super(LayoutRoute.name, initialChildren: children);
 
   static const String name = 'LayoutRoute';
 
-  static _i8.PageInfo page = _i8.PageInfo(
+  static _i10.PageInfo page = _i10.PageInfo(
     name,
     builder: (data) {
-      return const _i3.LayoutScreen();
+      return const _i4.LayoutScreen();
     },
   );
 }
 
 /// generated route for
-/// [_i4.SettingScreen]
-class SettingRoute extends _i8.PageRouteInfo<void> {
-  const SettingRoute({List<_i8.PageRouteInfo>? children})
+/// [_i5.SettingScreen]
+class SettingRoute extends _i10.PageRouteInfo<void> {
+  const SettingRoute({List<_i10.PageRouteInfo>? children})
     : super(SettingRoute.name, initialChildren: children);
 
   static const String name = 'SettingRoute';
 
-  static _i8.PageInfo page = _i8.PageInfo(
+  static _i10.PageInfo page = _i10.PageInfo(
     name,
     builder: (data) {
-      return const _i4.SettingScreen();
+      return const _i5.SettingScreen();
     },
   );
 }
 
 /// generated route for
-/// [_i5.TaskScreen]
-class TaskRoute extends _i8.PageRouteInfo<void> {
-  const TaskRoute({List<_i8.PageRouteInfo>? children})
+/// [_i6.TaskScreen]
+class TaskRoute extends _i10.PageRouteInfo<void> {
+  const TaskRoute({List<_i10.PageRouteInfo>? children})
     : super(TaskRoute.name, initialChildren: children);
 
   static const String name = 'TaskRoute';
 
-  static _i8.PageInfo page = _i8.PageInfo(
+  static _i10.PageInfo page = _i10.PageInfo(
     name,
     builder: (data) {
-      return const _i5.TaskScreen();
+      return const _i6.TaskScreen();
     },
   );
 }
 
 /// generated route for
-/// [_i6.UploadScreen]
-class UploadRoute extends _i8.PageRouteInfo<void> {
-  const UploadRoute({List<_i8.PageRouteInfo>? children})
+/// [_i7.UploadScreen]
+class UploadRoute extends _i10.PageRouteInfo<void> {
+  const UploadRoute({List<_i10.PageRouteInfo>? children})
     : super(UploadRoute.name, initialChildren: children);
 
   static const String name = 'UploadRoute';
 
-  static _i8.PageInfo page = _i8.PageInfo(
+  static _i10.PageInfo page = _i10.PageInfo(
     name,
     builder: (data) {
-      return const _i6.UploadScreen();
+      return const _i7.UploadScreen();
     },
   );
 }
 
 /// generated route for
-/// [_i7.VideoScreen]
-class VideoRoute extends _i8.PageRouteInfo<void> {
-  const VideoRoute({List<_i8.PageRouteInfo>? children})
+/// [_i8.VideoScreen]
+class VideoRoute extends _i10.PageRouteInfo<void> {
+  const VideoRoute({List<_i10.PageRouteInfo>? children})
     : super(VideoRoute.name, initialChildren: children);
 
   static const String name = 'VideoRoute';
 
-  static _i8.PageInfo page = _i8.PageInfo(
+  static _i10.PageInfo page = _i10.PageInfo(
     name,
     builder: (data) {
-      return const _i7.VideoScreen();
+      return const _i8.VideoScreen();
     },
   );
+}
+
+/// generated route for
+/// [_i9.YoutubePage]
+class YoutubeRoute extends _i10.PageRouteInfo<YoutubeRouteArgs> {
+  YoutubeRoute({
+    _i11.Key? key,
+    required _i11.TabController tabController,
+    List<_i10.PageRouteInfo>? children,
+  }) : super(
+         YoutubeRoute.name,
+         args: YoutubeRouteArgs(key: key, tabController: tabController),
+         initialChildren: children,
+       );
+
+  static const String name = 'YoutubeRoute';
+
+  static _i10.PageInfo page = _i10.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<YoutubeRouteArgs>();
+      return _i9.YoutubePage(key: args.key, tabController: args.tabController);
+    },
+  );
+}
+
+class YoutubeRouteArgs {
+  const YoutubeRouteArgs({this.key, required this.tabController});
+
+  final _i11.Key? key;
+
+  final _i11.TabController tabController;
+
+  @override
+  String toString() {
+    return 'YoutubeRouteArgs{key: $key, tabController: $tabController}';
+  }
 }

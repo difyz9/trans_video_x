@@ -11,6 +11,10 @@
 *.DS_Store
 .idea/
 .env
+*.mp3
+*.zip
+*.tar.gz
+*.mp4
 
 # Flutter repo-specific
 /bin/cache/
