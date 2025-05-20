@@ -1,6 +1,8 @@
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:trans_video_x/core/layout/models/sidebar_item.dart';
+import 'package:flutter/material.dart';
+import 'package:trans_video_x/routes/app_route.gr.dart';
 
 part 'layout_view_model.g.dart';
 
@@ -14,7 +16,10 @@ class LayoutViewModel extends _$LayoutViewModel{
 
 
   late final List<SidebarItem> _sidebarItems =  [
+    SidebarItem(key: 'home', icon: Icons.home, route: HomeRoute()),
+    SidebarItem(key: "video", icon: Icons.video_call, route: VideoRoute()),
 
+    SidebarItem(key: "setting", icon: Icons.settings, route: SettingRoute()),
   ];
 
   int get selectedIndex => state;
