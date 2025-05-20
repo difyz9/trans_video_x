@@ -40,9 +40,9 @@ dependencies:
   retrofit_generator: ^9.1.9
   json_serializable: ^6.9.5
   logger: ^2.5.0
-  media_kit: ^1.1.11 # Primary package.
-  media_kit_video: ^1.2.5 # For video rendering.
-  media_kit_libs_video: ^1.0.5 # Native video dependencies.
+  media_kit: ^1.1.11 
+  media_kit_video: ^1.2.5
+  media_kit_libs_video: ^1.0.5 
   video_player: ^2.9.5
   just_audio: ^0.10.1
   easy_localization: ^3.0.7+1
