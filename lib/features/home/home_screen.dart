@@ -151,7 +151,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      '支持 MP4、AVI、MOV 等格式, 最大 500MB',
+                      '支持 MP4、AVI、MOV 等格式, 最大 5G',
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
