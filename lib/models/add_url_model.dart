@@ -1,0 +1,68 @@
+
+
+import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';  // 我们需要添加这个依赖
+
+@HiveType(typeId: 1)
+class AddUrlModel {
+  @HiveField(0)
+  final String? id; // 添加ID字段以唯一标识每条记录
+
+  @HiveField(1)
+  final String? url;
+  
+  @HiveField(2)
+  final String? title;
+  
+  @HiveField(3)
+  final String? description;
+  
+  @HiveField(4)
+  final String? playlistId;
+  
+  @HiveField(5)
+  final String? operationType;
+
+  @HiveField(6)
+  final DateTime timestamp; // 添加时间戳字段
+
+  @HiveField(7)
+  final String? status; // 处理状态
+
+  AddUrlModel({
+    String? id,
+    this.url,
+    this.title,
+    this.description,
+    this.playlistId,
+    this.operationType,
+    DateTime? timestamp,
+    this.status
+  }) : this.id = id ?? const Uuid().v4(),
+       this.timestamp = timestamp ?? DateTime.now();
+
+  factory AddUrlModel.fromJson(Map<String, dynamic> json) {
+    return AddUrlModel(
+      id: json['id'] as String?,
+      url: json['url'] as String?,
+      title: json['title'] as String?,
+      description: json['description'] as String?,
+      playlistId: json['playlistId'] as String?,
+      operationType: json['operationType'] as String?,
+      timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
+      status: json['status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'url': url,
+      'title': title,
+      'description': description,
+      'playlistId': playlistId,
+      'operationType': operationType,
+    };
+  }
+
+}
