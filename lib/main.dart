@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:trans_video_x/core/config/env.dart';
 
-void main() {
+
+void main() async{
+
+    WidgetsFlutterBinding.ensureInitialized();
+  
+    await Env.init();
+
   runApp(const MyApp());
 }
 
