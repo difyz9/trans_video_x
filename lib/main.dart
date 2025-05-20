@@ -8,11 +8,13 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:trans_video_x/core/layout/provider/layout_provider.dart';
 import 'package:trans_video_x/routes/app_route.dart';
 import 'package:trans_video_x/core/hive/hive_init.dart';
+import 'package:trans_video_x/services/api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: '.env');
+
 
 
   // 初始化Hive和注册适配器
@@ -32,6 +34,7 @@ void main() async {
     print(bucketName);
     print(region);
 
+    ApiService().startServer();
     await CosService.initialize(
       appId: appId,
       secretId: secretId,
