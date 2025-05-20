@@ -9,22 +9,23 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i6;
+import 'package:auto_route/auto_route.dart' as _i7;
 import 'package:trans_video_x/core/layout/view/content_screen.dart' as _i1;
 import 'package:trans_video_x/core/layout/view/layout_screen.dart' as _i3;
 import 'package:trans_video_x/features/home/home_screen.dart' as _i2;
+import 'package:trans_video_x/features/home/upload_screen.dart' as _i5;
 import 'package:trans_video_x/features/settings/setting_screen.dart' as _i4;
-import 'package:trans_video_x/features/video/video_screen.dart' as _i5;
+import 'package:trans_video_x/features/video/video_screen.dart' as _i6;
 
 /// generated route for
 /// [_i1.ContentScreen]
-class ContentRoute extends _i6.PageRouteInfo<void> {
-  const ContentRoute({List<_i6.PageRouteInfo>? children})
+class ContentRoute extends _i7.PageRouteInfo<void> {
+  const ContentRoute({List<_i7.PageRouteInfo>? children})
     : super(ContentRoute.name, initialChildren: children);
 
   static const String name = 'ContentRoute';
 
-  static _i6.PageInfo page = _i6.PageInfo(
+  static _i7.PageInfo page = _i7.PageInfo(
     name,
     builder: (data) {
       return const _i1.ContentScreen();
@@ -34,13 +35,13 @@ class ContentRoute extends _i6.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i2.HomeScreen]
-class HomeRoute extends _i6.PageRouteInfo<void> {
-  const HomeRoute({List<_i6.PageRouteInfo>? children})
+class HomeRoute extends _i7.PageRouteInfo<void> {
+  const HomeRoute({List<_i7.PageRouteInfo>? children})
     : super(HomeRoute.name, initialChildren: children);
 
   static const String name = 'HomeRoute';
 
-  static _i6.PageInfo page = _i6.PageInfo(
+  static _i7.PageInfo page = _i7.PageInfo(
     name,
     builder: (data) {
       return const _i2.HomeScreen();
@@ -50,13 +51,13 @@ class HomeRoute extends _i6.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i3.LayoutScreen]
-class LayoutRoute extends _i6.PageRouteInfo<void> {
-  const LayoutRoute({List<_i6.PageRouteInfo>? children})
+class LayoutRoute extends _i7.PageRouteInfo<void> {
+  const LayoutRoute({List<_i7.PageRouteInfo>? children})
     : super(LayoutRoute.name, initialChildren: children);
 
   static const String name = 'LayoutRoute';
 
-  static _i6.PageInfo page = _i6.PageInfo(
+  static _i7.PageInfo page = _i7.PageInfo(
     name,
     builder: (data) {
       return const _i3.LayoutScreen();
@@ -66,13 +67,13 @@ class LayoutRoute extends _i6.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i4.SettingScreen]
-class SettingRoute extends _i6.PageRouteInfo<void> {
-  const SettingRoute({List<_i6.PageRouteInfo>? children})
+class SettingRoute extends _i7.PageRouteInfo<void> {
+  const SettingRoute({List<_i7.PageRouteInfo>? children})
     : super(SettingRoute.name, initialChildren: children);
 
   static const String name = 'SettingRoute';
 
-  static _i6.PageInfo page = _i6.PageInfo(
+  static _i7.PageInfo page = _i7.PageInfo(
     name,
     builder: (data) {
       return const _i4.SettingScreen();
@@ -81,17 +82,33 @@ class SettingRoute extends _i6.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i5.VideoScreen]
-class VideoRoute extends _i6.PageRouteInfo<void> {
-  const VideoRoute({List<_i6.PageRouteInfo>? children})
+/// [_i5.UploadScreen]
+class UploadRoute extends _i7.PageRouteInfo<void> {
+  const UploadRoute({List<_i7.PageRouteInfo>? children})
+    : super(UploadRoute.name, initialChildren: children);
+
+  static const String name = 'UploadRoute';
+
+  static _i7.PageInfo page = _i7.PageInfo(
+    name,
+    builder: (data) {
+      return const _i5.UploadScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [_i6.VideoScreen]
+class VideoRoute extends _i7.PageRouteInfo<void> {
+  const VideoRoute({List<_i7.PageRouteInfo>? children})
     : super(VideoRoute.name, initialChildren: children);
 
   static const String name = 'VideoRoute';
 
-  static _i6.PageInfo page = _i6.PageInfo(
+  static _i7.PageInfo page = _i7.PageInfo(
     name,
     builder: (data) {
-      return const _i5.VideoScreen();
+      return const _i6.VideoScreen();
     },
   );
 }

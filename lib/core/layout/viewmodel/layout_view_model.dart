@@ -20,6 +20,7 @@ class LayoutViewModel extends _$LayoutViewModel{
     SidebarItem(key: "video", icon: Icons.video_call, route: VideoRoute()),
 
     SidebarItem(key: "setting", icon: Icons.settings, route: SettingRoute()),
+    SidebarItem(key: "upload", icon: Icons.upload, route: UploadRoute()),
   ];
 
   int get selectedIndex => state;

@@ -74,12 +74,14 @@ class CosOperationState {
   final String? error;
   final bool isSuccess;
   final dynamic result;
+  final dynamic originalError; // Added to store the original error
 
   const CosOperationState({
     this.isLoading = false,
     this.error,
     this.isSuccess = false,
     this.result,
+    this.originalError, // Added
   });
 
   CosOperationState copyWith({
@@ -87,19 +89,23 @@ class CosOperationState {
     String? error,
     bool? isSuccess,
     dynamic result,
+    dynamic originalError, // Added
   }) {
     return CosOperationState(
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       isSuccess: isSuccess ?? this.isSuccess,
       result: result ?? this.result,
+      originalError: originalError ?? this.originalError, // Added
     );
   }
 
   factory CosOperationState.initial() => const CosOperationState();
   factory CosOperationState.loading() => const CosOperationState(isLoading: true);
   factory CosOperationState.success({dynamic result}) => CosOperationState(isSuccess: true, result: result);
-  factory CosOperationState.error(String message) => CosOperationState(error: message, isSuccess: false);
+  // Updated factory to include originalError
+  factory CosOperationState.error(String message, {dynamic originalError}) => 
+      CosOperationState(error: message, isSuccess: false, originalError: originalError);
 }
 
 // 操作状态Notifier
@@ -126,7 +132,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       );
       state = CosOperationState.success(result: objectKey);
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -145,7 +151,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       );
       state = CosOperationState.success(result: objectKey);
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -162,7 +168,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       );
       state = CosOperationState.success(result: result);
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -173,7 +179,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       await CosService.deleteObject(objectKey: objectKey);
       state = CosOperationState.success();
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -184,7 +190,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       await CosService.deleteMultipleObjects(objectKeys: objectKeys);
       state = CosOperationState.success();
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -195,7 +201,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       final result = await CosService.deleteDirectory(directoryPath: directoryPath);
       state = CosOperationState.success(result: result);
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -206,7 +212,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       await CosService.createFolder(folderPath: folderPath);
       state = CosOperationState.success();
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -223,7 +229,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       );
       state = CosOperationState.success(result: result);
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -234,7 +240,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       final url = await CosService.getObjectUrl(objectKey: objectKey);
       state = CosOperationState.success(result: url);
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -259,7 +265,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       invalidateObjectsProvider();
       state = CosOperationState.success(result: 'BucketSelectedSuccessfully');
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -278,7 +284,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       );
       state = CosOperationState.success(result: 'BucketCreatedSuccessfully');
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 
@@ -295,7 +301,7 @@ class CosOperationNotifier extends StateNotifier<CosOperationState> {
       );
       state = CosOperationState.success(result: 'BucketDeletedSuccessfully');
     } catch (e) {
-      state = CosOperationState.error(extractErrorMessage(e));
+      state = CosOperationState.error(extractErrorMessage(e), originalError: e);
     }
   }
 }

@@ -2,27 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:trans_video_x/core/cos/services/cos_service.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:trans_video_x/core/layout/provider/layout_provider.dart';
 import 'package:trans_video_x/routes/app_route.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() async{
-
-    WidgetsFlutterBinding.ensureInitialized();
-  
- await dotenv.load(fileName: '.env');
+  await dotenv.load(fileName: '.env');
 
   // 初始化腾讯云 COS 服务
   try {
-    final appId =  dotenv.env['COS_APP_ID'] ?? "" ;
-    final secretId =  dotenv.env['COS_SECRET_ID'] ?? "";
+    final appId = dotenv.env['COS_APP_ID'] ?? "";
+    final secretId = dotenv.env['COS_SECRET_ID'] ?? "";
     final secretKey = dotenv.env['COS_SECRET_KEY'] ?? "";
-    final bucketName =  dotenv.env['COS_BUCKET'] ?? "";
-    final region =  dotenv.env['COS_REGION'] ?? "";
+    final bucketName = dotenv.env['COS_BUCKET'] ?? "";
+    final region = dotenv.env['COS_REGION'] ?? "";
+
+    print(appId);
+    print(secretId);
+    print(secretKey);
+    print(bucketName);
+    print(region);
 
     await CosService.initialize(
       appId: appId,
@@ -31,43 +34,28 @@ void main() async{
       bucketName: bucketName,
       region: region,
     );
-    debugPrint('COS service initialized with bucket: $bucketName, region: $region');
+    debugPrint(
+      'COS service initialized with bucket: $bucketName, region: $region',
+    );
   } catch (e) {
     debugPrint('COS service initialization failed: $e');
     // We'll continue and allow reconfiguration in the settings
-
   }
-
 
   // 初始化 easy_localization
   await EasyLocalization.ensureInitialized();
 
-  // WindowOptions windowOptions = WindowOptions(
-  //   size: Size(900, 600),
-  //   minimumSize: Size(900, 600),
-  // );
-
-  //   windowManager.waitUntilReadyToShow(windowOptions, () async {
-  //   await windowManager.show();
-  //   await windowManager.focus();
-  // });
-
-
-
   runApp(
     ProviderScope(
       child: EasyLocalization(
-        supportedLocales: const [
-          Locale('en', ''),
-          Locale('zh', ''),
-        ],
+        supportedLocales: const [Locale('en', ''), Locale('zh', '')],
         path: 'assets/translations', // 翻译文件路径
         fallbackLocale: const Locale('en', ''), // 默认语言
         child: const BaseApp(),
       ),
     ),
   );
-   doWhenWindowReady(() {
+  doWhenWindowReady(() {
     final win = appWindow;
     const initialSize = Size(900, 600);
     win.minSize = initialSize;
@@ -77,38 +65,6 @@ void main() async{
     win.show();
   });
 }
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const BaseApp(),
-    );
-  }
-}
-
 
 class BaseApp extends ConsumerWidget {
   const BaseApp({super.key});
