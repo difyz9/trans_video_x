@@ -13,5 +13,5 @@ Future<void> initHive() async {
   }
   
   // 打开box
-  await Hive.openBox<AddUrlModel>('urlVos');
+  await Hive.openBox<AddUrlModel>('UrlBox');
 }
