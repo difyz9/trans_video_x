@@ -16,9 +16,8 @@ class AppRouter extends RootStackRouter {
   AppRouter(this.ref);
 
   List<AutoRoute> get routes => [
-    AutoRoute(page: LayoutRoute.page, path: "/", children: []),
-
-    CustomFadeRoute(
+    AutoRoute(page: LayoutRoute.page, path: "/", children: [
+          CustomFadeRoute(
       page: HomeRoute.page,
       path: HomeRoute.name,
       initial: true,
@@ -26,6 +25,9 @@ class AppRouter extends RootStackRouter {
     ),
     CustomFadeRoute(page: SettingRoute.page, path: SettingRoute.name),
     CustomFadeRoute(page: VideoRoute.page, path: VideoRoute.name),
+    ]),
+
+
   ];
 }
 

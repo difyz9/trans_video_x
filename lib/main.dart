@@ -1,12 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:trans_video_x/core/cos/services/cos_service.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:trans_video_x/core/layout/provider/layout_provider.dart';
+import 'package:trans_video_x/routes/app_route.dart';
+
 
 void main() async{
 
     WidgetsFlutterBinding.ensureInitialized();
   
  await dotenv.load(fileName: '.env');
-  runApp(const MyApp());
+
+  // 初始化腾讯云 COS 服务
+  try {
+    final appId =  dotenv.env['COS_APP_ID'] ?? "" ;
+    final secretId =  dotenv.env['COS_SECRET_ID'] ?? "";
+    final secretKey = dotenv.env['COS_SECRET_KEY'] ?? "";
+    final bucketName =  dotenv.env['COS_BUCKET'] ?? "";
+    final region =  dotenv.env['COS_REGION'] ?? "";
+
+    await CosService.initialize(
+      appId: appId,
+      secretId: secretId,
+      secretKey: secretKey,
+      bucketName: bucketName,
+      region: region,
+    );
+    debugPrint('COS service initialized with bucket: $bucketName, region: $region');
+  } catch (e) {
+    debugPrint('COS service initialization failed: $e');
+    // We'll continue and allow reconfiguration in the settings
+
+  }
+
+
+  // 初始化 easy_localization
+  await EasyLocalization.ensureInitialized();
+
+  // WindowOptions windowOptions = WindowOptions(
+  //   size: Size(900, 600),
+  //   minimumSize: Size(900, 600),
+  // );
+
+  //   windowManager.waitUntilReadyToShow(windowOptions, () async {
+  //   await windowManager.show();
+  //   await windowManager.focus();
+  // });
+
+
+
+  runApp(
+    ProviderScope(
+      child: EasyLocalization(
+        supportedLocales: const [
+          Locale('en', ''),
+          Locale('zh', ''),
+        ],
+        path: 'assets/translations', // 翻译文件路径
+        fallbackLocale: const Locale('en', ''), // 默认语言
+        child: const BaseApp(),
+      ),
+    ),
+  );
+   doWhenWindowReady(() {
+    final win = appWindow;
+    const initialSize = Size(900, 600);
+    win.minSize = initialSize;
+    win.size = initialSize;
+    win.alignment = Alignment.center;
+    win.title = "video_translator";
+    win.show();
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -35,93 +104,50 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const BaseApp(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class BaseApp extends ConsumerWidget {
+  const BaseApp({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+    final themeState = ref.watch(themeNotifierProvider);
+    final appRouter = ref.watch(routerProvider);
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+    final primaryColor = themeState.primaryColor;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+    return MaterialApp.router(
+      title: 'Admin Dashboard',
+      debugShowCheckedModeBanner: false,
+      routerDelegate: appRouter.delegate(
+        navigatorObservers: () => [FlutterSmartDialog.observer],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+      theme: ThemeData.light().copyWith(
+        primaryColor: primaryColor,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          brightness: Brightness.light,
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      darkTheme: ThemeData.dark().copyWith(
+        primaryColor: primaryColor,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: themeState.themeMode,
+      // 使用 easy_localization 的 locale 和 localizationsDelegates
+      locale: context.locale, // 从 EasyLocalization 获取当前语言
+      supportedLocales: context.supportedLocales, // 从 EasyLocalization 获取支持的语言
+      localizationsDelegates: context.localizationDelegates, // 添加本地化代理
+      builder: FlutterSmartDialog.init(),
+      routeInformationParser: appRouter.defaultRouteParser(),
     );
   }
 }
