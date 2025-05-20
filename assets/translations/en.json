@@ -1,0 +1,25 @@
+{
+  "theme_settings": "Theme Settings",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System",
+  "primary_color_settings": "Primary Color Settings",
+  "language_settings": "Language Settings",
+  "chinese": "Chinese",
+  "english": "English",
+
+    "home": "Home",
+    "video_translation": "Video Translation",
+    "my_subscriptions": "My Subscriptions",
+    "trans": "Translation",
+    "products": "Products",
+    "cart": "Cart",
+    "bilili": "Bilili",
+    "setting": "Settings",
+    "play": "PlayList",
+    "upload": "Upload",
+    "collapse_sidebar":" Collapse Sidebar",
+    "expand_sidebar":" Expand Sidebar",
+
+    "webview": "Webview"
+  }

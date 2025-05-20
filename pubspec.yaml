@@ -18,6 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 
+
 environment:
   sdk: ^3.7.2
 
@@ -31,9 +32,54 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  auto_updater: ^1.0.0
+  auto_route: ^10.0.1
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  retrofit_generator: ^9.1.9
+  json_serializable: ^6.9.5
+  logger: ^2.5.0
+  media_kit: ^1.1.11 # Primary package.
+  media_kit_video: ^1.2.5 # For video rendering.
+  media_kit_libs_video: ^1.0.5 # Native video dependencies.
+  video_player: ^2.9.5
+  just_audio: ^0.10.1
+  easy_localization: ^3.0.7+1
+  schedulers: ^1.0.1
+  package_info_plus: ^8.3.0
+  flutter_riverpod: ^2.6.1
+  shimmer: ^3.0.0
+  bitsdojo_window: ^0.1.6
+  riverpod_annotation: ^2.6.1
+
+  tencent_cos_plus: ^1.2.2
+  shared_preferences: ^2.5.3
+  intl: ^0.19.0
+  flutter_smart_dialog: ^4.9.8+7
+  file_selector: ^1.0.3
+  path_provider: ^2.1.5
+  file_picker: ^10.1.2
+  flutter_secure_storage: ^8.1.0
+  crypto: ^3.0.6
+  url_launcher: ^6.3.1
+  lottie: ^3.1.2 # Added
+  confetti: ^0.7.0 # Added
+  desktop_drop: ^0.5.0
+  dotted_border: ^2.1.0
+  timeago: ^3.7.1
+  catppuccin_flutter: ^1.0.0
+  skeletonizer: ^1.4.3
+  hive: ^2.2.3
+  flutter_spinkit: ^5.2.1
+  font_awesome_flutter: ^10.8.0
+  window_manager: ^0.4.3
+  hive_flutter: ^1.1.0
+  shelf: ^1.4.1 # Add shelf for creating the server
+  shelf_router: ^1.1.4 # Add shelf_router for routing
+  uuid: ^4.5.1
+  shelf_cors_headers: ^0.1.5
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +91,14 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  auto_route_generator: ^10.0.1
+  riverpod_generator: ^2.6.4
+  build_runner: ^2.4.15
+  
+
+  custom_lint: ^0.7.2
+  riverpod_lint: ^2.6.4
+  freezed: ^2.5.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -58,7 +112,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
+  assets:
+    - .env
+    - assets/yt-dlp/
+    - assets/translations/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

@@ -1,0 +1,24 @@
+{
+  "theme_settings": "主题设置",
+  "light": "浅色",
+  "dark": "深色",
+  "system": "系统",
+  "primary_color_settings": "主色调设置",
+  "language_settings": "语言设置",
+  "chinese": "中文",
+  "english": "英文",
+
+    "home": "首页",
+    "video_translation": "视频翻译",
+    "my_subscriptions": "我的订阅",
+    "trans": "翻译",
+    "products": "产品",
+    "cart": "购物车",
+    "bilili": "哔哩哔哩",
+    "setting": "设置",
+    "play": "播放列表",
+    "upload": "上传",
+    "collapse_sidebar":"折叠",
+    "expand_sidebar":"展开",
+    "webview": "网页视图"
+  }
