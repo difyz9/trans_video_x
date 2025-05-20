@@ -11,6 +11,9 @@ class AppConstants {
   // Feature flags
   static const bool enableAutoUpdate = true;
   
+
+   static const String addUrlModelBoxName = 'addUrlModels';
+
   // Update check intervals
   static const Duration updateCheckInterval = Duration(hours: 24);
   

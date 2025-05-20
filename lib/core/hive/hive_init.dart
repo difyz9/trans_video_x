@@ -1,6 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:trans_video_x/models/add_url_model.dart';
 import 'package:trans_video_x/core/hive/add_url_adapter.dart';
+import 'package:trans_video_x/core/constants/app_constants.dart';
 
 /// 初始化Hive数据库
 Future<void> initHive() async {
@@ -13,5 +14,5 @@ Future<void> initHive() async {
   }
   
   // 打开box
-  await Hive.openBox<AddUrlModel>('UrlBox');
+  await Hive.openBox<AddUrlModel>(AppConstants.addUrlModelBoxName);
 }

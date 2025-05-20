@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trans_video_x/models/add_url_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:trans_video_x/core/constants/app_constants.dart';
 
 import 'package:trans_video_x/features/task/model/task_status.dart';
 import 'package:trans_video_x/features/task/provider/task_provider.dart';
@@ -19,7 +20,6 @@ class TaskScreen extends ConsumerStatefulWidget {
 }
 
 class _TaskScreenState extends ConsumerState<TaskScreen> {
- static const String urlVoBoxName = 'urlVos';
   late Box<AddUrlModel> _urlBox;
   bool _isLoading = true;
   // Audio and frames upload endpoints
@@ -37,7 +37,7 @@ class _TaskScreenState extends ConsumerState<TaskScreen> {
 
   Future<void> _openBox() async {
     try {
-      _urlBox = await Hive.openBox<AddUrlModel>(urlVoBoxName);
+      _urlBox = await Hive.openBox<AddUrlModel>(AppConstants.addUrlModelBoxName);
       if (mounted) {
         setState(() {
           _isLoading = false;

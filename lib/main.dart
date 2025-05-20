@@ -7,11 +7,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:trans_video_x/core/layout/provider/layout_provider.dart';
 import 'package:trans_video_x/routes/app_route.dart';
+import 'package:trans_video_x/core/hive/hive_init.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: '.env');
+
+
+  // 初始化Hive和注册适配器
+  await initHive();
 
   // 初始化腾讯云 COS 服务
   try {
