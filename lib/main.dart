@@ -25,7 +25,7 @@ void main() async {
   // 初始化Hive和注册适配器
   await initHive();
 
-    final prefs = await SharedPreferences.getInstance();
+    // final prefs = await SharedPreferences.getInstance();
 
   // 初始化腾讯云 COS 服务
   try {
