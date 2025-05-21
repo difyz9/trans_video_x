@@ -78,7 +78,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final String fileName = fileHash?.substring(0, 10) ?? timestamp;
 
     final String fileExtension = originalFileName.contains('.') ? originalFileName.substring(originalFileName.lastIndexOf('.')) : '';
-    final String cosObjectKey = 'uploads/$fileName$fileExtension'; // Example: uploads/1678886400000.mp4
+    final String cosObjectKey = 'uploads/$fileName/$fileName$fileExtension'; // Example: uploads/1678886400000.mp4
 
 
 
