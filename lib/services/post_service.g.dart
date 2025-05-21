@@ -3,6 +3,22 @@
 part of 'post_service.dart';
 
 // **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+ApiResponseModel _$ApiResponseModelFromJson(Map<String, dynamic> json) =>
+    ApiResponseModel(
+      message: json['msg'] as String,
+      code: (json['code'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$ApiResponseModelToJson(ApiResponseModel instance) =>
+    <String, dynamic>{
+      'msg': instance.message,
+      'code': instance.code,
+    };
+
+// **************************************************************************
 // RetrofitGenerator
 // **************************************************************************
 
@@ -10,7 +26,7 @@ part of 'post_service.dart';
 
 class _PostService implements PostService {
   _PostService(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'YOUR_BASE_API_URL';
+    baseUrl ??= 'http://127.0.0.1:8081';
   }
 
   final Dio _dio;
@@ -20,22 +36,31 @@ class _PostService implements PostService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<void> postTask(TaskModel task) async {
+  Future<ApiResponseModel> postTask(TaskModel task) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = task;
-    final _options = _setStreamType<void>(
+    final _data = <String, dynamic>{};
+    _data.addAll(task.toJson());
+    final _options = _setStreamType<ApiResponseModel>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/tasks',
+            '/media/task/add',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    await _dio.fetch<void>(_options);
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponseModel _value;
+    try {
+      _value = ApiResponseModel.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

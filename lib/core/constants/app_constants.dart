@@ -3,8 +3,8 @@ class AppConstants {
   
   // http://127.0.0.1:5678/api/v1/version
   // API endpoints
-  static const String baseUrl = 'https://www.coding520.top/dev_api';
-  // static const String baseUrl = 'http://127.0.0.1:8080';
+  // static const String baseUrl = 'https://www.coding520.top/dev_api';
+  static const String baseUrl = 'http://127.0.0.1:8081';
   // 使用 mockbin.org 作为模拟更新服务器
   static const String updateBaseUrl = 'http://127.0.0.1:5678';
 

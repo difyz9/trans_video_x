@@ -12,7 +12,7 @@ part 'dio_provider.g.dart';
 @riverpod
 Dio dio(Ref ref) {
   String token = ''; // 从环境变量获取 token
-  String baseUrl = '${AppConstants.baseUrl}/api'; // 从环境变量获取基础 URL
+  String baseUrl = '${AppConstants.baseUrl}'; // 从环境变量获取基础 URL
 
   final logger = ref.watch(loggerProvider); // 获取日志记录器
   final apiErrorHandle = ref.watch(apiErrorHandleNotifierProvider.notifier); // 获取错误处理器

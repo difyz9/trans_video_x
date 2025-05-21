@@ -30,13 +30,13 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       cosObjectKey: fields[10] as String,
       downloadUrl: fields[11] as String?,
       errorMessage: fields[12] as String?,
-    );
+    )..syncStatusString = fields[13] as String;
   }
 
   @override
   void write(BinaryWriter writer, TaskModel obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -62,7 +62,9 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
       ..writeByte(11)
       ..write(obj.downloadUrl)
       ..writeByte(12)
-      ..write(obj.errorMessage);
+      ..write(obj.errorMessage)
+      ..writeByte(13)
+      ..write(obj.syncStatusString);
   }
 
   @override
@@ -75,3 +77,49 @@ class TaskModelAdapter extends TypeAdapter<TaskModel> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+TaskModel _$TaskModelFromJson(Map<String, dynamic> json) => TaskModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      path: json['path'] as String,
+      size: (json['size'] as num).toInt(),
+      formattedSize: json['formattedSize'] as String,
+      type: json['type'] as String,
+      uploadTime: json['uploadTime'] as String,
+      sourceLanguage: json['sourceLanguage'] as String,
+      targetLanguage: json['targetLanguage'] as String,
+      status: json['status'] as String,
+      cosObjectKey: json['cosObjectKey'] as String,
+      downloadUrl: json['downloadUrl'] as String?,
+      errorMessage: json['errorMessage'] as String?,
+    )
+      ..syncStatusString = json['syncStatusString'] as String
+      ..syncStatus = $enumDecode(_$SyncStatusEnumMap, json['syncStatus']);
+
+Map<String, dynamic> _$TaskModelToJson(TaskModel instance) => <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'path': instance.path,
+      'size': instance.size,
+      'formattedSize': instance.formattedSize,
+      'type': instance.type,
+      'uploadTime': instance.uploadTime,
+      'sourceLanguage': instance.sourceLanguage,
+      'targetLanguage': instance.targetLanguage,
+      'status': instance.status,
+      'cosObjectKey': instance.cosObjectKey,
+      'downloadUrl': instance.downloadUrl,
+      'errorMessage': instance.errorMessage,
+      'syncStatusString': instance.syncStatusString,
+      'syncStatus': _$SyncStatusEnumMap[instance.syncStatus]!,
+    };
+
+const _$SyncStatusEnumMap = {
+  SyncStatus.pending: 'pending',
+  SyncStatus.synced: 'synced',
+  SyncStatus.failed: 'failed',
+};

@@ -7,7 +7,8 @@ import 'package:trans_video_x/core/widget/file_drop_screen.dart';
 import 'package:intl/intl.dart'; // Added for DateFormat
 import 'package:hive_flutter/hive_flutter.dart'; // For Hive
 import 'package:trans_video_x/models/task_model.dart';
-import 'package:trans_video_x/routes/app_route.gr.dart'; // Adjust the path as needed
+import 'package:trans_video_x/routes/app_route.gr.dart';
+import 'package:uuid/uuid.dart'; // Adjust the path as needed
 
 const String tasksBoxName = 'tasksBox'; // Hive box name
 
@@ -98,7 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       try {
         final box = await Hive.openBox<TaskModel>(tasksBoxName);
         final taskToStore = TaskModel(
-          id: cosObjectKey, // Use COS object key as a unique ID
+          id: Uuid().v4(), // Use a new UUID as a unique ID
           cosObjectKey: cosObjectKey,
           name: task['name'] as String,
           path: task['path'] as String? ?? '',
