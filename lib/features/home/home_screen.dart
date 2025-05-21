@@ -4,6 +4,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:trans_video_x/core/cos/providers/cos_providers.dart';
 import 'package:trans_video_x/core/widget/file_drop_screen.dart';
 import 'package:intl/intl.dart'; // Added for DateFormat
+import 'package:hive_flutter/hive_flutter.dart'; // For Hive
+import 'package:trans_video_x/models/task_model.dart'; // Adjust the path as needed
+
+const String tasksBoxName = 'tasksBox'; // Hive box name
 
 @RoutePage()
 class HomeScreen extends ConsumerStatefulWidget {
@@ -72,7 +76,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _startSingleTask(Map<String, dynamic> task) async {
-    
     final cosNotifier = ref.read(cosOperationProvider.notifier); // Get the COS notifier
     final String? localFilePath = task['path'] as String?;
     final String originalFileName = task['name'] as String;
@@ -103,13 +106,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
       // Corrected: Use objectKey for the COS path
       await cosNotifier.uploadFile(filePath: localFilePath, objectKey: cosObjectKey);
+      print('Successfully uploaded $originalFileName as $cosObjectKey.');
+
+      // Store in Hive after successful upload
+      try {
+        final box = await Hive.openBox<TaskModel>(tasksBoxName);
+        final taskToStore = TaskModel(
+          id: cosObjectKey, // Use COS object key as a unique ID
+          cosObjectKey: cosObjectKey,
+          name: task['name'] as String,
+          path: task['path'] as String? ?? '',
+          size: task['size'] as int,
+          formattedSize: task['formattedSize'] as String,
+          type: task['type'] as String,
+          uploadTime: DateTime.now().toIso8601String(),
+          sourceLanguage: task['source'] as String,
+          targetLanguage: task['target'] as String,
+          status: '已上传待处理', // Status indicating successful upload, awaiting backend
+        );
+        await box.put(taskToStore.id, taskToStore);
+        print('Task $originalFileName data stored in Hive with key: ${taskToStore.id}');
+      } catch (hiveError) {
+        print('Failed to store task $originalFileName in Hive: $hiveError');
+      }
 
       if (mounted) {
         setState(() {
-          task['status'] = '处理中'; // Or '上传成功' if that's a distinct step
+          task['status'] = '处理中'; // Indicates upload success, ready for backend
+          task['cosObjectKey'] = cosObjectKey; // Store cosObjectKey in the UI task map
         });
       }
-      print('Successfully uploaded $originalFileName as $cosObjectKey and started task.');
     } catch (e) {
       print('Failed to upload task $originalFileName: $e');
       if (mounted) {
@@ -323,6 +349,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   DataColumn(label: Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('操作', style: TextStyle(fontWeight: FontWeight.bold)))),
                 ],
                 rows: _allTasks.map((task) {
+                  final String currentTaskCosKey = task['cosObjectKey'] as String? ?? (task['name']! as String);
+
                   return DataRow(cells: [
                     DataCell(Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), child: Text(task['name']! as String))),
                     DataCell(Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), child: Text(task['time']! as String))),
@@ -397,8 +425,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             }),
                                       IconButton(
                                           icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                          onPressed: () {
+                                          onPressed: () async {
                                             print('Delete: ${task['name']}');
+                                            if (task['cosObjectKey'] != null) {
+                                              try {
+                                                final box = await Hive.openBox<TaskModel>(tasksBoxName);
+                                                await box.delete(task['cosObjectKey']);
+                                                print('Task ${task['name']} removed from Hive.');
+                                              } catch (hiveError) {
+                                                print('Failed to remove task ${task['name']} from Hive: $hiveError');
+                                              }
+                                            }
                                             setState(() {
                                               _allTasks.remove(task);
                                             });
