@@ -21,7 +21,17 @@ jobs:
             build_command: flutter build windows --release
             artifact_path: build/windows/x64/runner/Release # <--- This is the path used by Compress-Archive
             archive_extension: zip
-       
+          - os: ubuntu-latest
+            platform_name: linux
+            build_command: flutter build linux --release
+            artifact_path: build/linux/x64/release/bundle
+            archive_extension: tar.gz
+          - os: macos-latest
+            platform_name: macos
+            build_command: flutter build macos --release
+            artifact_path: build/macos/Build/Products/Release # .app bundle is inside this directory
+            archive_extension: zip
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
