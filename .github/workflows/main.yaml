@@ -1,0 +1,168 @@
+name: Build and Release Flutter App
+
+on:
+  push:
+    branches:
+      - main # Or your primary development branch
+    tags:
+      - 'v*.*.*' # Trigger on version tags like v1.0.0
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build:
+    name: Build for ${{ matrix.platform_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform_name: windows
+            build_command: flutter build windows --release
+            artifact_path: build/windows/runner/Release
+            archive_extension: zip
+          - os: ubuntu-latest
+            platform_name: linux
+            build_command: flutter build linux --release
+            artifact_path: build/linux/x64/release/bundle
+            archive_extension: tar.gz
+          - os: macos-latest
+            platform_name: macos
+            build_command: flutter build macos --release
+            artifact_path: build/macos/Build/Products/Release # .app bundle is inside this directory
+            archive_extension: zip
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0' # Specify your desired Flutter version
+          channel: 'stable'
+          cache: true
+
+      - name: Get App Info from pubspec.yaml
+        id: app_info
+        shell: bash
+        run: |
+          APP_NAME=$(grep '^name:' pubspec.yaml | awk '{print $2}')
+          APP_VERSION_FULL=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          APP_VERSION=$(echo "$APP_VERSION_FULL" | cut -d '+' -f 1)
+          echo "APP_NAME=${APP_NAME}" >> $GITHUB_ENV
+          echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
+          echo "App Name: $APP_NAME"
+          echo "App Version: $APP_VERSION"
+
+      - name: Determine Version Tag for Artifact
+        id: version_tag
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "VERSION_TAG_VALUE=${{ github.ref_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION_TAG_VALUE=${{ env.APP_VERSION }}-dev-${GITHUB_SHA::7}" >> $GITHUB_ENV
+          fi
+          echo "Using version tag for artifact: ${{ env.VERSION_TAG_VALUE }}"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Enable desktop support (if project structure requires it)
+        run: |
+          flutter config --enable-windows-desktop
+          flutter config --enable-linux-desktop
+          flutter config --enable-macos-desktop
+        # This ensures the toolchain is aware, actual build depends on project having these platform folders
+
+      - name: Build Flutter app
+        run: ${{ matrix.build_command }}
+
+      - name: Determine macOS App Bundle Name
+        if: matrix.os == 'macos-latest'
+        id: macos_app_bundle
+        shell: bash
+        run: |
+          # Find the .app directory. It should be the only .app in the Release directory.
+          APP_BUNDLE_NAME=$(ls "${{ matrix.artifact_path }}" | grep '.app$' | head -n 1)
+          if [ -z "$APP_BUNDLE_NAME" ]; then
+            echo "Error: No .app bundle found in ${{ matrix.artifact_path }}"
+            exit 1
+          fi
+          echo "APP_BUNDLE_NAME=$APP_BUNDLE_NAME" >> $GITHUB_ENV
+          echo "macOS App Bundle Name: $APP_BUNDLE_NAME"
+
+      - name: Archive Release
+        shell: bash
+        run: |
+          ARTIFACT_FILENAME="${{ env.APP_NAME }}-${{ env.VERSION_TAG_VALUE }}-${{ matrix.platform_name }}.${{ matrix.archive_extension }}"
+          echo "Archiving to: ${ARTIFACT_FILENAME}"
+
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            pwsh -Command "Compress-Archive -Path ${{ matrix.artifact_path }}/* -DestinationPath ${ARTIFACT_FILENAME} -Force"
+          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            tar -czvf "${ARTIFACT_FILENAME}" -C "${{ matrix.artifact_path }}" .
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            cd "${{ matrix.artifact_path }}"
+            zip -r "../../${ARTIFACT_FILENAME}" "${{ env.APP_BUNDLE_NAME }}"
+            cd ../../.. # Go back to project root to ensure path for upload is correct
+          fi
+          echo "ARCHIVED_AS=${ARTIFACT_FILENAME}" >> $GITHUB_ENV # Pass file name to next step
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-${{ matrix.platform_name }}-${{ env.VERSION_TAG_VALUE }} # Unique artifact name
+          path: ${{ env.ARCHIVED_AS }} # Path to the single archive file
+
+  create_release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    # Only run for version tags like v1.0.0, v1.2.3-beta.1 etc.
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write # Required to create releases and upload assets
+
+    steps:
+      - name: Get App Name from pubspec.yaml (for consistency if needed)
+        id: app_info_release
+        shell: bash
+        run: |
+          APP_NAME=$(grep '^name:' pubspec.yaml | awk '{print $2}')
+          echo "APP_NAME=${APP_NAME}" >> $GITHUB_ENV
+        # This step assumes pubspec.yaml is available; checkout if not done in this job
+        # However, we primarily use artifact names which should be self-descriptive
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts # Downloads all artifacts into 'release-artifacts' directory
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: "Automated release for ${{ github.ref_name }}. Assets built from commit ${{ github.sha }}."
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }} # Mark as pre-release if tag contains -beta or -alpha
+
+      - name: Upload Release Assets
+        shell: bash
+        run: |
+          echo "Release ID: ${{ steps.create_release.outputs.id }}"
+          echo "Upload URL: ${{ steps.create_release.outputs.upload_url }}"
+          echo "Looking for assets in release-artifacts/"
+          # Loop through each artifact downloaded. download-artifact@v4 places each artifact in a subdirectory named after the artifact's 'name'
+          find release-artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" \) -print0 | while IFS= read -r -d $'\0' asset_path; do
+            asset_name=$(basename "$asset_path")
+            echo "Uploading $asset_name from $asset_path"
+            gh release upload "${{ github.ref_name }}" "$asset_path" --clobber
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
