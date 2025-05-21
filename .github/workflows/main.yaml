@@ -45,13 +45,12 @@ jobs:
         id: app_info
         shell: bash
         run: |
+          echo "Current directory: $(pwd)"
+          echo "Listing files in current directory:"
+          ls -la
+          echo "Attempting to read pubspec.yaml..."
           APP_NAME=$(grep '^name:' pubspec.yaml | awk '{print $2}')
           APP_VERSION_FULL=$(grep '^version:' pubspec.yaml | awk '{print $2}')
-          APP_VERSION=$(echo "$APP_VERSION_FULL" | cut -d '+' -f 1)
-          echo "APP_NAME=${APP_NAME}" >> $GITHUB_ENV
-          echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV
-          echo "App Name: $APP_NAME"
-          echo "App Version: $APP_VERSION"
 
       - name: Create .env file from Secrets
         shell: bash
