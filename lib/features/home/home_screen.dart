@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:trans_video_x/core/cos/providers/cos_providers.dart';
 import 'package:trans_video_x/core/widget/file_drop_screen.dart';
 import 'package:intl/intl.dart'; // Added for DateFormat
 
@@ -28,6 +29,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       "path": null, // Ensure all task items have consistent keys
       "formattedSize": "N/A",
       "type": "mp4",
+      "error": null,
     },
     {
       "name": "会议记录.mp4",
@@ -38,6 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       "path": null, // Ensure all task items have consistent keys
       "formattedSize": "N/A",
       "type": "mp4",
+      "error": null,
     },
   ];
 
@@ -59,12 +62,63 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'source': _selectedSourceLanguage,
         'target': _selectedTargetLanguage,
         'status': '待处理', // New status for pending tasks
+        'error': null, // For storing error messages
       };
     }).toList();
 
     setState(() {
       _allTasks.insertAll(0, newTasks); // Add new tasks to the top of the list
     });
+  }
+
+  Future<void> _startSingleTask(Map<String, dynamic> task) async {
+    
+    final cosNotifier = ref.read(cosOperationProvider.notifier); // Get the COS notifier
+    final String? localFilePath = task['path'] as String?;
+    final String originalFileName = task['name'] as String;
+
+    if (localFilePath == null || localFilePath.isEmpty) {
+      print('File path is missing for task: $originalFileName');
+      if (mounted) {
+        setState(() {
+          task['status'] = '上传失败';
+          task['error'] = '文件路径缺失';
+        });
+      }
+      return;
+    }
+
+    // Generate a timestamp-based key for COS
+    final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    final String fileExtension = originalFileName.contains('.') ? originalFileName.substring(originalFileName.lastIndexOf('.')) : '';
+    final String cosObjectKey = 'uploads/$timestamp$fileExtension'; // Example: uploads/1678886400000.mp4
+
+    try {
+      if (mounted) {
+        setState(() {
+          task['status'] = '上传中...';
+          task['error'] = null; // Clear previous error
+        });
+      }
+
+      // Corrected: Use objectKey for the COS path
+      await cosNotifier.uploadFile(filePath: localFilePath, objectKey: cosObjectKey);
+
+      if (mounted) {
+        setState(() {
+          task['status'] = '处理中'; // Or '上传成功' if that's a distinct step
+        });
+      }
+      print('Successfully uploaded $originalFileName as $cosObjectKey and started task.');
+    } catch (e) {
+      print('Failed to upload task $originalFileName: $e');
+      if (mounted) {
+        setState(() {
+          task['status'] = '上传失败';
+          task['error'] = e.toString();
+        });
+      }
+    }
   }
 
   void _resetSelectionsAndPendingTasks() {
@@ -78,26 +132,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
-  void _startAllPendingTasks() {
-    bool hasPendingTasks = _allTasks.any((task) => task['status'] == '待处理');
-    if (!hasPendingTasks) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('没有待处理的任务。')),
-      );
+  Future<void> _startAllPendingTasks() async {
+    List<Map<String, dynamic>> tasksToProcess = _allTasks.where((task) => task['status'] == '待处理').toList();
+
+    if (tasksToProcess.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('没有待处理的任务。')),
+        );
+      }
       return;
     }
-    setState(() {
-      for (var task in _allTasks) {
-        if (task['status'] == '待处理') {
-          task['status'] = '处理中';
-          // TODO: Add actual task start logic here
-          print('Starting task: ${task['name']}');
-        }
+
+    int startedCount = 0;
+    for (var task in tasksToProcess) {
+      await _startSingleTask(task); // Await each task's start, including upload
+      if (task['status'] == '处理中' || task['status'] == '上传中...') {
+        startedCount++;
       }
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('所有待处理任务已开始。')),
-    );
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$startedCount 个任务已开始处理/上传。请查看列表了解具体状态。')),
+      );
+    }
   }
 
   @override
@@ -116,35 +175,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   '视频翻译',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                // Action Buttons Row
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('重置'),
-                    onPressed: _resetSelectionsAndPendingTasks,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent,
-                      foregroundColor: Colors.white,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('重置'),
+                        onPressed: _resetSelectionsAndPendingTasks,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orangeAccent,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text('开始所有待处理任务'),
+                        onPressed: _startAllPendingTasks,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('开始所有待处理任务'),
-                    onPressed: _startAllPendingTasks,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // End of Action Buttons Row
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -161,10 +218,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     decoration: const InputDecoration(
                       labelText: '源语言',
                       border: OutlineInputBorder(),
-                      isDense: true, // Makes the field more compact
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12), // Adjust padding
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                     ),
-                    value: _selectedSourceLanguage, // Use state variable
+                    value: _selectedSourceLanguage,
                     items: ['中文', 'English']
                         .map((label) => DropdownMenuItem(
                               value: label,
@@ -191,10 +248,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     decoration: const InputDecoration(
                       labelText: '目标语言',
                       border: OutlineInputBorder(),
-                      isDense: true, // Makes the field more compact
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12), // Adjusted horizontal padding
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                     ),
-                    value: _selectedTargetLanguage, // Use state variable
+                    value: _selectedTargetLanguage,
                     items: ['English', '日语', '中文']
                         .map((label) => DropdownMenuItem(
                               value: label,
@@ -223,28 +280,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 24),
             FileDropWidget(
               onFilesSelected: _handleFilesSelected,
-              initialFiles: const [], // Pass empty list to clear FileDropWidget after selection
+              initialFiles: const [],
             ),
-            
-            // const SizedBox(height: 24),
-
-           
 
             const SizedBox(height: 32),
 
             // Recent Tasks Section
-        
             Row(
               children: [
-                    const Text(
-              '任务列表',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+                const Text(
+                  '任务列表',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.settings),
                   onPressed: () {},
-                  tooltip: 'Settings',),
+                  tooltip: 'Settings',
+                ),
               ],
             ),
 
@@ -252,10 +305,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             SizedBox(
               width: double.infinity,
               child: DataTable(
-                columnSpacing: 24, // Increased column spacing
-                dataRowMinHeight: 52, // Added min height for data rows
-                dataRowMaxHeight: 64, // Added max height for data rows
-                headingRowHeight: 56, // Increased heading row height
+                columnSpacing: 24,
+                dataRowMinHeight: 52,
+                dataRowMaxHeight: 64,
+                headingRowHeight: 56,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
@@ -280,22 +333,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                         child: Chip(
                           label: Text(task['status']! as String),
-                          backgroundColor: task['status'] == '已完成' 
-                              ? Colors.green.shade100 
-                              : task['status'] == '处理中' 
-                                  ? Colors.orange.shade100 
+                          backgroundColor: task['status'] == '已完成'
+                              ? Colors.green.shade100
+                              : task['status'] == '处理中'
+                                  ? Colors.orange.shade100
                                   : task['status'] == '待处理'
                                       ? Colors.blue.shade100
-                                      : Colors.grey.shade100, // Default color
+                                      : task['status'] == '上传中...'
+                                          ? Colors.purple.shade100
+                                          : task['status'] == '上传失败'
+                                              ? Colors.red.shade100
+                                              : Colors.grey.shade100,
                           labelStyle: TextStyle(
-                            color: task['status'] == '已完成' 
-                                ? Colors.green.shade800 
-                                : task['status'] == '处理中' 
+                            color: task['status'] == '已完成'
+                                ? Colors.green.shade800
+                                : task['status'] == '处理中'
                                     ? Colors.orange.shade800
                                     : task['status'] == '待处理'
                                         ? Colors.blue.shade800
-                                        : Colors.black, // Default color
-                            fontWeight: FontWeight.bold
+                                        : task['status'] == '上传中...'
+                                            ? Colors.purple.shade800
+                                            : task['status'] == '上传失败'
+                                                ? Colors.red.shade800
+                                                : Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         ),
@@ -304,40 +365,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     DataCell(
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                        child: task['status'] == '待处理'
-                          ? ElevatedButton(
-                              child: const Text('开始任务'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                textStyle: const TextStyle(fontSize: 12)
-                              ),
-                              onPressed: () {
-                                // TODO: Implement start task logic
-                                print('Start task for: ${task['name']} at path ${task['path']}');
-                                setState(() {
-                                  task['status'] = '处理中'; 
-                                });
-                              },
-                            )
-                          : Row( 
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (task['status'] == '已完成')
-                                  IconButton(icon: const Icon(Icons.download_outlined, color: Colors.blue), onPressed: () {
-                                    print('Download: ${task['name']}');
-                                    // TODO: Implement download
-                                  }),
-                                IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () {
-                                  print('Delete: ${task['name']}');
-                                  setState(() {
-                                    _allTasks.remove(task);
-                                  });
-                                  // TODO: Implement delete
-                                }),
-                              ],
-                            ),
+                        child: task['status'] == '待处理' || task['status'] == '上传失败'
+                            ? ElevatedButton.icon(
+                                icon: Icon(task['status'] == '上传失败' ? Icons.refresh : Icons.play_arrow),
+                                label: Text(task['status'] == '上传失败' ? '重试' : '开始任务'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: task['status'] == '上传失败' ? Colors.orange : Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  textStyle: const TextStyle(fontSize: 12),
+                                ),
+                                onPressed: () => _startSingleTask(task),
+                              )
+                            : (task['status'] == '上传中...')
+                                ? const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2)),
+                                      SizedBox(width: 8),
+                                      Text("上传中...", style: TextStyle(fontSize: 12)),
+                                    ],
+                                  )
+                                : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (task['status'] == '已完成')
+                                        IconButton(
+                                            icon: const Icon(Icons.download_outlined, color: Colors.blue),
+                                            onPressed: () {
+                                              print('Download: ${task['name']}');
+                                            }),
+                                      IconButton(
+                                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                          onPressed: () {
+                                            print('Delete: ${task['name']}');
+                                            setState(() {
+                                              _allTasks.remove(task);
+                                            });
+                                          }),
+                                    ],
+                                  ),
                       ),
                     ),
                   ]);
