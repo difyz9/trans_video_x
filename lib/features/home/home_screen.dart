@@ -67,6 +67,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
+  void _resetSelectionsAndPendingTasks() {
+    setState(() {
+      // Remove tasks that are "待处理"
+      _allTasks.removeWhere((task) => task['status'] == '待处理');
+      // Reset language selections
+      _selectedSourceLanguage = '中文';
+      _selectedTargetLanguage = 'English';
+      // Potentially clear other states if needed
+    });
+  }
+
+  void _startAllPendingTasks() {
+    bool hasPendingTasks = _allTasks.any((task) => task['status'] == '待处理');
+    if (!hasPendingTasks) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('没有待处理的任务。')),
+      );
+      return;
+    }
+    setState(() {
+      for (var task in _allTasks) {
+        if (task['status'] == '待处理') {
+          task['status'] = '处理中';
+          // TODO: Add actual task start logic here
+          print('Starting task: ${task['name']}');
+        }
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('所有待处理任务已开始。')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,17 +116,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   '视频翻译',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: const Text('新建翻译任务'),
-                  onPressed: () {
-                    // TODO: Implement new task action
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                // Action Buttons Row
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('重置'),
+                    onPressed: _resetSelectionsAndPendingTasks,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orangeAccent,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Text('开始所有待处理任务'),
+                    onPressed: _startAllPendingTasks,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // End of Action Buttons Row
               ],
             ),
             const SizedBox(height: 8),
@@ -168,13 +219,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
 
+            const SizedBox(height: 24),
             FileDropWidget(
               onFilesSelected: _handleFilesSelected,
               initialFiles: const [], // Pass empty list to clear FileDropWidget after selection
             ),
             
+            // const SizedBox(height: 24),
+
+           
+
             const SizedBox(height: 32),
 
             // Recent Tasks Section
