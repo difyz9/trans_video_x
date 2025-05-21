@@ -10,8 +10,8 @@ on:
 
 jobs:
   build:
-    name: Build for ${{ matrix.platform_name }}
-    runs-on: ${{ matrix.os }}
+    name: Build for Windows
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
@@ -19,7 +19,7 @@ jobs:
           - os: windows-latest
             platform_name: windows
             build_command: flutter build windows --release
-            artifact_path: build/windows/x64/runner/Release # <--- This is the path used by Compress-Archive
+            artifact_path: build/windows/x64/runner/Release
             archive_extension: zip
        
     steps:
@@ -54,14 +54,12 @@ jobs:
           echo "COS_SECRET_KEY=${{ secrets.COS_SECRET_KEY }}" >> .env
           echo "COS_REGION=${{ secrets.COS_REGION }}" >> .env
           echo "COS_BUCKET=${{ secrets.COS_BUCKET }}" >> .env
-
           # Add more lines for each environment variable you need,
           # ensuring you have corresponding secrets configured in GitHub.
           # Example: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
           echo ".env file created."
           echo "Contents of .env (first few lines for verification, ensure no real secrets are printed if this log is public):"
           head -n 6 .env
-
 
       - name: Determine Version Tag for Artifact
         id: version_tag
@@ -80,46 +78,20 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Enable desktop support (if project structure requires it)
-        run: |
-          flutter config --enable-windows-desktop
-          flutter config --enable-linux-desktop
-          flutter config --enable-macos-desktop
+      - name: Enable Windows desktop support
+        run: flutter config --enable-windows-desktop
         # This ensures the toolchain is aware, actual build depends on project having these platform folders
 
       - name: Build Flutter app
         run: ${{ matrix.build_command }}
 
-      - name: Determine macOS App Bundle Name
-        if: matrix.os == 'macos-latest'
-        id: macos_app_bundle
-        shell: bash
-        run: |
-          # Find the .app directory. It should be the only .app in the Release directory.
-          APP_BUNDLE_NAME=$(ls "${{ matrix.artifact_path }}" | grep '.app$' | head -n 1)
-          if [ -z "$APP_BUNDLE_NAME" ]; then
-            echo "Error: No .app bundle found in ${{ matrix.artifact_path }}"
-            exit 1
-          fi
-          echo "APP_BUNDLE_NAME=$APP_BUNDLE_NAME" >> $GITHUB_ENV
-          echo "macOS App Bundle Name: $APP_BUNDLE_NAME"
-
       - name: Archive Release
-        shell: bash
+        shell: pwsh
         run: |
-          ARTIFACT_FILENAME="${{ env.APP_NAME }}-${{ env.VERSION_TAG_VALUE }}-${{ matrix.platform_name }}.${{ matrix.archive_extension }}"
-          echo "Archiving to: ${ARTIFACT_FILENAME}"
-
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            pwsh -Command "Compress-Archive -Path ${{ matrix.artifact_path }}/* -DestinationPath ${ARTIFACT_FILENAME} -Force"
-          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            tar -czvf "${ARTIFACT_FILENAME}" -C "${{ matrix.artifact_path }}" .
-          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            cd "${{ matrix.artifact_path }}"
-            zip -r "../../${ARTIFACT_FILENAME}" "${{ env.APP_BUNDLE_NAME }}"
-            cd ../../.. # Go back to project root to ensure path for upload is correct
-          fi
-          echo "ARCHIVED_AS=${ARTIFACT_FILENAME}" >> $GITHUB_ENV # Pass file name to next step
+          $ARTIFACT_FILENAME = "${{ env.APP_NAME }}-${{ env.VERSION_TAG_VALUE }}-${{ matrix.platform_name }}.${{ matrix.archive_extension }}"
+          Write-Host "Archiving to: $ARTIFACT_FILENAME"
+          Compress-Archive -Path ${{ matrix.artifact_path }}\* -DestinationPath $ARTIFACT_FILENAME -Force
+          echo "ARCHIVED_AS=$ARTIFACT_FILENAME" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -137,15 +109,6 @@ jobs:
       contents: write # Required to create releases and upload assets
 
     steps:
-      - name: Get App Name from pubspec.yaml (for consistency if needed)
-        id: app_info_release
-        shell: bash
-        run: |
-          APP_NAME=$(grep '^name:' pubspec.yaml | awk '{print $2}')
-          echo "APP_NAME=${APP_NAME}" >> $GITHUB_ENV
-        # This step assumes pubspec.yaml is available; checkout if not done in this job
-        # However, we primarily use artifact names which should be self-descriptive
-
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -170,6 +133,7 @@ jobs:
           echo "Upload URL: ${{ steps.create_release.outputs.upload_url }}"
           echo "Looking for assets in release-artifacts/"
           # Loop through each artifact downloaded. download-artifact@v4 places each artifact in a subdirectory named after the artifact's 'name'
+          # Since we only have one artifact type now, we can be more direct or keep the loop
           find release-artifacts -type f \( -name "*.zip" -o -name "*.tar.gz" \) -print0 | while IFS= read -r -d $'\0' asset_path; do
             asset_name=$(basename "$asset_path")
             echo "Uploading $asset_name from $asset_path"
