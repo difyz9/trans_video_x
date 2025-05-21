@@ -277,73 +277,75 @@ Future<void> _onDrop(DropDoneDetails details) async {
               });
             },
             onDragDone: _onDrop,
-            child: Container(
-              height: widget.height,
-              color: _dragging ? Colors.blue.withOpacity(0.1) : Colors.grey[50],
-              width: widget.width,
-              child: _isProcessing
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 16),
-                          Text('处理文件中...', style: TextStyle(color: Colors.grey)),
-                        ],
-                      ),
-                    )
-                  : _fileInfoList.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(onPressed: _pickFiles, icon: Icon(Icons.cloud_upload, color: Colors.blue[300], size: 48))
-                              ,
-                              const SizedBox(height: 16),
-                              const Text(
-                                '点击或拖动文件上传',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '支持 ${widget.allowedExtensions.join(", ")} 等视频格式，单个文件最大 ${widget.maxFileSizeInBytes / (1024 * 1024 * 1024)} GB',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                              ),
-                            ],
-                          ))
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: _fileInfoList.length,
-                          itemBuilder: (context, index) {
-                            final fileInfo = _fileInfoList[index];
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              child: ListTile(
-                                leading: _getFileIcon(fileInfo['type']),
-                                title: Text(fileInfo['name']),
-                                subtitle: Text('${fileInfo['formattedSize']} · ${fileInfo['type'].toUpperCase()}'),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () {
-                                    setState(() {
-                                      _fileInfoList.removeAt(index);
-                                    });
-                                    // 调用回调函数，将更新后的文件信息传递给父组件
-                                    if (widget.onFilesSelected != null) {
-                                      widget.onFilesSelected!(_fileInfoList);
-                                    }
-                                  },
-                                ),
-                              ),
-                            );
-                          },
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
+                color: _dragging ? Colors.blue.withOpacity(0.1) : Colors.grey[50],
+                child: _isProcessing
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text('处理文件中...', style: TextStyle(color: Colors.grey)),
+                          ],
                         ),
+                      )
+                    : _fileInfoList.isEmpty
+                        ? Center(
+                        
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(onPressed: _pickFiles, icon: Icon(Icons.cloud_upload, color: Colors.blue[300], size: 48))
+                                ,
+                                const SizedBox(height: 16),
+                                const Text(
+                                  '点击或拖动文件上传',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '支持 ${widget.allowedExtensions.join(", ")} 等视频格式，单个文件最大 ${widget.maxFileSizeInBytes / (1024 * 1024 * 1024)} GB',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                                ),
+                              ],
+                            ))
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _fileInfoList.length,
+                            itemBuilder: (context, index) {
+                              final fileInfo = _fileInfoList[index];
+                              return Card(
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: ListTile(
+                                  leading: _getFileIcon(fileInfo['type']),
+                                  title: Text(fileInfo['name']),
+                                  subtitle: Text('${fileInfo['formattedSize']} · ${fileInfo['type'].toUpperCase()}'),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () {
+                                      setState(() {
+                                        _fileInfoList.removeAt(index);
+                                      });
+                                      // 调用回调函数，将更新后的文件信息传递给父组件
+                                      if (widget.onFilesSelected != null) {
+                                        widget.onFilesSelected!(_fileInfoList);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+              ),
             ),
           ),
           ),

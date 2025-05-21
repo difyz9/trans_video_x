@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:trans_video_x/core/cos/providers/cos_providers.dart';
+import 'package:trans_video_x/core/widget/file_drop_screen.dart'; // Added import
+
 import 'package:path/path.dart' as p; // For path manipulation
 
 @RoutePage()
@@ -45,15 +45,17 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
     }
   }
 
-  void _onDragDone(DropDoneDetails details) {
+
+
+    void _handleFilesSelected(List<Map<String, dynamic>> selectedFilesData) {
     setState(() {
-      _dragging = false;
-      _folderPath = null; // Clear folder path if files/folders are dropped
-      _files.clear(); // Clear existing files before adding new dropped files
-      for (final xfile in details.files) {
-        // The XFile path property is non-nullable. No need to check for null.
-        _files.add(PlatformFile(name: xfile.name, path: xfile.path, size: 0)); // Size might not be available directly from XFile
-      }
+      _files.clear();
+      _files.addAll(selectedFilesData.map((fileData) => PlatformFile(
+            name: fileData['name'] as String,
+            path: fileData['path'] as String,
+            size: fileData['size'] as int,
+          )));
+      // _folderPath = null; // Ensure folderPath is null as we get a flat list
     });
   }
 
@@ -85,6 +87,28 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
     }
   }
 
+  List<Map<String, dynamic>> _platformFilesToMapList(List<PlatformFile> platformFiles) {
+    return platformFiles.map((pf) {
+      String formattedSize;
+      final size = pf.size;
+      if (size < 1024) {
+        formattedSize = '$size B';
+      } else if (size < 1024 * 1024) {
+        formattedSize = '${(size / 1024).toStringAsFixed(2)} KB';
+      } else if (size < 1024 * 1024 * 1024) {
+        formattedSize = '${(size / (1024 * 1024)).toStringAsFixed(2)} MB';
+      } else {
+        formattedSize = '${(size / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+      }
+      return {
+        'name': pf.name,
+        'path': pf.path,
+        'size': pf.size,
+        'formattedSize': formattedSize,
+        'type': pf.extension?.toLowerCase() ?? p.extension(pf.name).replaceFirst('.', '').toLowerCase(),
+      };
+    }).toList();
+  }
   @override
   Widget build(BuildContext context) {
     final cosState = ref.watch(cosOperationProvider);
@@ -116,6 +140,8 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
         ref.read(cosOperationProvider.notifier).reset();
       }
     });
+        final initialFilesForDropWidget = _platformFilesToMapList(_files);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -126,42 +152,11 @@ class _UploadScreenState extends ConsumerState<UploadScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DropTarget(
-              onDragDone: _onDragDone,
-              onDragEntered: (detail) => setState(() => _dragging = true),
-              onDragExited: (detail) => setState(() => _dragging = false),
-              child: DottedBorder(
-                color: _dragging
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey,
-                strokeWidth: 2,
-                dashPattern: const [6, 3],
-                borderType: BorderType.RRect,
-                radius: const Radius.circular(12),
-                child: Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: _dragging
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                        : Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.cloud_upload_outlined,
-                            size: 60, color: Colors.grey),
-                        SizedBox(height: 16),
-                        Text('Drag and drop files or folders here',
-                            style: TextStyle(fontSize: 16, color: Colors.grey)),
-                        Text('or',
-                            style: TextStyle(fontSize: 14, color: Colors.grey)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+        
+             FileDropWidget(
+              onFilesSelected: _handleFilesSelected,
+              initialFiles: initialFilesForDropWidget,
+    
             ),
             const SizedBox(height: 20),
             Row(

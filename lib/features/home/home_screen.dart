@@ -1,13 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:trans_video_x/core/widget/file_drop_screen.dart'; // Added import
+import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as p; // For path manipulation
+
+
 
 @RoutePage()
-class HomeScreen extends ConsumerWidget {
+
+
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final List<PlatformFile> _files = [];
+  String? _folderPath;
+  bool _dragging = false;
+
+    void _handleFilesSelected(List<Map<String, dynamic>> selectedFilesData) {
+    setState(() {
+      _files.clear();
+      _files.addAll(selectedFilesData.map((fileData) => PlatformFile(
+            name: fileData['name'] as String,
+            path: fileData['path'] as String,
+            size: fileData['size'] as int,
+          )));
+      // _folderPath = null; // Ensure folderPath is null as we get a flat list
+    });
+  }
+
+
+  List<Map<String, dynamic>> _platformFilesToMapList(List<PlatformFile> platformFiles) {
+    return platformFiles.map((pf) {
+      String formattedSize;
+      final size = pf.size;
+      if (size < 1024) {
+        formattedSize = '$size B';
+      } else if (size < 1024 * 1024) {
+        formattedSize = '${(size / 1024).toStringAsFixed(2)} KB';
+      } else if (size < 1024 * 1024 * 1024) {
+        formattedSize = '${(size / (1024 * 1024)).toStringAsFixed(2)} MB';
+      } else {
+        formattedSize = '${(size / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+      }
+      return {
+        'name': pf.name,
+        'path': pf.path,
+        'size': pf.size,
+        'formattedSize': formattedSize,
+        'type': pf.extension?.toLowerCase() ?? p.extension(pf.name).replaceFirst('.', '').toLowerCase(),
+      };
+    }).toList();
+  }
+  
+
+  @override
+  Widget build(BuildContext context) {
     // Placeholder data for recent tasks
     final List<Map<String, String>> recentTasks = [
       {
@@ -25,6 +78,10 @@ class HomeScreen extends ConsumerWidget {
         "status": "处理中"
       },
     ];
+
+
+        final initialFilesForDropWidget = _platformFilesToMapList(_files);
+
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -119,45 +176,51 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            // File Upload Area
-            Container(
-              padding: const EdgeInsets.all(32.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid, width: 2),
-                borderRadius: BorderRadius.circular(8.0),
-                color: Colors.grey.shade50,
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.upload_file, size: 48, color: Colors.grey),
-                    const SizedBox(height: 16),
-                    const Text(
-                      '拖拽视频文件到这里, 或',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      child: const Text('选择文件'),
-                      onPressed: () {
-                        // TODO: Implement file selection
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      '支持 MP4、AVI、MOV 等格式, 最大 5G',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
+                 FileDropWidget(
+              onFilesSelected: _handleFilesSelected,
+              initialFiles: initialFilesForDropWidget,
+    
             ),
+
+            // File Upload Area
+            // Container(
+            //   padding: const EdgeInsets.all(32.0),
+            //   decoration: BoxDecoration(
+            //     border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid, width: 2),
+            //     borderRadius: BorderRadius.circular(8.0),
+            //     color: Colors.grey.shade50,
+            //   ),
+            //   child: Center(
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         const Icon(Icons.upload_file, size: 48, color: Colors.grey),
+            //         const SizedBox(height: 16),
+            //         const Text(
+            //           '拖拽视频文件到这里, 或',
+            //           textAlign: TextAlign.center,
+            //           style: TextStyle(fontSize: 16),
+            //         ),
+            //         const SizedBox(height: 16),
+            //         ElevatedButton(
+            //           child: const Text('选择文件'),
+            //           onPressed: () {
+            //             // TODO: Implement file selection
+            //           },
+            //           style: ElevatedButton.styleFrom(
+            //             backgroundColor: Colors.blue,
+            //             foregroundColor: Colors.white,
+            //           ),
+            //         ),
+            //         const SizedBox(height: 16),
+            //         const Text(
+            //           '支持 MP4、AVI、MOV 等格式, 最大 5G',
+            //           style: TextStyle(fontSize: 12, color: Colors.grey),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 32),
 
             // Recent Tasks Section
