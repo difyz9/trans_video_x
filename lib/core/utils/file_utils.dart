@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:crypto/crypto.dart'; // For sha256
 
 // 定义常量，用于字节单位换算
 const int KB = 1024;
@@ -20,12 +21,6 @@ class FileUtils {
 
   // 获取单例实例的静态方法
   static FileUtils get instance => _instance;
-
-
-
-
-
-
 
   // 保存 JSON 数据到文件的方法
   Future<void> saveJsonToFile(String jsonData, String fileName) async {
@@ -54,11 +49,9 @@ class FileUtils {
     }
   }
 
-
-// 拷贝文件到新的路径
+  // 拷贝文件到新的路径
   Future<void> copyFile(String sourcePath, String destinationPath) async {
     final sourceFile = File(sourcePath);
-    final destinationFile = File(destinationPath);
 
     try {
       await sourceFile.copy(destinationPath);
@@ -68,39 +61,56 @@ class FileUtils {
     }
   }
 
+  /// 根据文件路径名返回文件大小（以 M 或 G 为单位）
+  /// 如果文件不存在，返回 '0 B'
+  Future<String> getFileSizeInHumanReadable(String filePath) async {
+    final file = File(filePath);
+    if (await file.exists()) {
+      final int sizeInBytes = await file.length();
 
+      if (sizeInBytes >= GB) {
+        // 如果文件大小大于等于 1GB，转换为 GB 并保留两位小数
+        final double sizeInGB = sizeInBytes / GB;
+        return '${sizeInGB.toStringAsFixed(2)} G';
+      } else if (sizeInBytes >= MB) {
+        // 如果文件大小大于等于 1MB，转换为 MB 并保留两位小数
+        final double sizeInMB = sizeInBytes / MB;
+        return '${sizeInMB.toStringAsFixed(2)} M';
+      } else if (sizeInBytes >= KB) {
+        // 如果文件大小大于等于 1KB，转换为 KB 并保留两位小数
+        final double sizeInKB = sizeInBytes / KB;
+        return '${sizeInKB.toStringAsFixed(2)} KB';
+      } else {
+        // 文件大小小于 1KB，以字节为单位
+        return '$sizeInBytes B';
+      }
+    }
+    return '0 B';
+  }
 
+  // 判断文件路径是否有特殊字符
+  bool hasSpecialCharacters(String path) {
+    // 定义允许的字符范围，这里允许字母、数字、斜杠、反斜杠、点
+    final RegExp allowedChars = RegExp(r'^[a-zA-Z0-9/\\.]+$');
+    return !allowedChars.hasMatch(path);
+  }
 
-/// 根据文件路径名返回文件大小（以 M 或 G 为单位）
-/// 如果文件不存在，返回 '0 B'
-Future<String> getFileSizeInHumanReadable(String filePath) async {
-  final file = File(filePath);
-  if (await file.exists()) {
-    final int sizeInBytes = await file.length();
-
-    if (sizeInBytes >= GB) {
-      // 如果文件大小大于等于 1GB，转换为 GB 并保留两位小数
-      final double sizeInGB = sizeInBytes / GB;
-      return '${sizeInGB.toStringAsFixed(2)} G';
-    } else if (sizeInBytes >= MB) {
-      // 如果文件大小大于等于 1MB，转换为 MB 并保留两位小数
-      final double sizeInMB = sizeInBytes / MB;
-      return '${sizeInMB.toStringAsFixed(2)} M';
-    } else if (sizeInBytes >= KB) {
-      // 如果文件大小大于等于 1KB，转换为 KB 并保留两位小数
-      final double sizeInKB = sizeInBytes / KB;
-      return '${sizeInKB.toStringAsFixed(2)} KB';
-    } else {
-      // 文件大小小于 1KB，以字节为单位
-      return '$sizeInBytes B';
+  // 计算文件的 SHA-256 哈希值
+  Future<String?> getFileHashKey(String filePath) async {
+    try {
+      final file = File(filePath);
+      if (await file.exists()) {
+        final stream = file.openRead();
+        final hash = await sha256.bind(stream).first;
+        // Manually convert bytes to hex string
+        return hash.bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+      } else {
+        print('File not found for hashing: $filePath');
+        return null;
+      }
+    } catch (e) {
+      print('Error calculating file hash for $filePath: $e');
+      return null;
     }
   }
-  return '0 B';
-}
-// 判断文件路径是否有特殊字符
-bool hasSpecialCharacters(String path) {
-  // 定义允许的字符范围，这里允许字母、数字、斜杠、反斜杠、点
-  final RegExp allowedChars = RegExp(r'^[a-zA-Z0-9/\\.]+$');
-  return !allowedChars.hasMatch(path);
-}
 }
