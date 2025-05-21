@@ -20,8 +20,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  String _selectedSourceLanguage = '中文';
-  String _selectedTargetLanguage = 'English';
+  String _selectedSourceLanguage = 'English';
+  String _selectedTargetLanguage = '中文';
 
   // Unified list for all tasks, including initial ones and newly added ones.
   List<Map<String, dynamic>> _allTasks = [
@@ -138,8 +138,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Remove tasks that are "待处理"
       _allTasks.removeWhere((task) => task['status'] == '待处理');
       // Reset language selections
-      _selectedSourceLanguage = '中文';
-      _selectedTargetLanguage = 'English';
+      _selectedSourceLanguage = 'English';
+      _selectedTargetLanguage = '中文';
       // Potentially clear other states if needed
     });
   }
