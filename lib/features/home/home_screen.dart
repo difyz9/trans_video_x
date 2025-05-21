@@ -6,7 +6,8 @@ import 'package:trans_video_x/core/utils/file_utils.dart';
 import 'package:trans_video_x/core/widget/file_drop_screen.dart';
 import 'package:intl/intl.dart'; // Added for DateFormat
 import 'package:hive_flutter/hive_flutter.dart'; // For Hive
-import 'package:trans_video_x/models/task_model.dart'; // Adjust the path as needed
+import 'package:trans_video_x/models/task_model.dart';
+import 'package:trans_video_x/routes/app_route.gr.dart'; // Adjust the path as needed
 
 const String tasksBoxName = 'tasksBox'; // Hive box name
 
@@ -304,11 +305,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.settings),
-                  onPressed: () {},
-                  tooltip: 'Settings',
-                ),
+                TextButton(onPressed: (){
+                  AutoRouter.of(context).push(const HistoryRoute());
+                }, child: const Text("历史记录"))
+               
               ],
             ),
 

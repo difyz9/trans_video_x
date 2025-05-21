@@ -7,7 +7,13 @@ part of 'item_model.dart';
 // **************************************************************************
 
 _$ItemModelImpl _$$ItemModelImplFromJson(Map<String, dynamic> json) =>
-    _$ItemModelImpl(name: json['name'] as String, path: json['path'] as String);
+    _$ItemModelImpl(
+      name: json['name'] as String,
+      path: json['path'] as String,
+    );
 
 Map<String, dynamic> _$$ItemModelImplToJson(_$ItemModelImpl instance) =>
-    <String, dynamic>{'name': instance.name, 'path': instance.path};
+    <String, dynamic>{
+      'name': instance.name,
+      'path': instance.path,
+    };

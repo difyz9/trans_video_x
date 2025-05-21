@@ -13,15 +13,14 @@ String _$apiErrorHandleNotifierHash() =>
 @ProviderFor(ApiErrorHandleNotifier)
 final apiErrorHandleNotifierProvider =
     AutoDisposeNotifierProvider<ApiErrorHandleNotifier, ApiErrorState>.internal(
-      ApiErrorHandleNotifier.new,
-      name: r'apiErrorHandleNotifierProvider',
-      debugGetCreateSourceHash:
-          const bool.fromEnvironment('dart.vm.product')
-              ? null
-              : _$apiErrorHandleNotifierHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  ApiErrorHandleNotifier.new,
+  name: r'apiErrorHandleNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$apiErrorHandleNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$ApiErrorHandleNotifier = AutoDisposeNotifier<ApiErrorState>;
 // ignore_for_file: type=lint

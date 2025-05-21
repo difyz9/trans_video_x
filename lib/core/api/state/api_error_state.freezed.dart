@@ -12,8 +12,7 @@ part of 'api_error_state.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$ApiErrorState {
@@ -31,9 +30,8 @@ mixin _$ApiErrorState {
 /// @nodoc
 abstract class $ApiErrorStateCopyWith<$Res> {
   factory $ApiErrorStateCopyWith(
-    ApiErrorState value,
-    $Res Function(ApiErrorState) then,
-  ) = _$ApiErrorStateCopyWithImpl<$Res, ApiErrorState>;
+          ApiErrorState value, $Res Function(ApiErrorState) then) =
+      _$ApiErrorStateCopyWithImpl<$Res, ApiErrorState>;
   @useResult
   $Res call({dynamic errorState, List<Future<void> Function()> retryList});
 }
@@ -52,22 +50,20 @@ class _$ApiErrorStateCopyWithImpl<$Res, $Val extends ApiErrorState>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? errorState = freezed, Object? retryList = null}) {
-    return _then(
-      _value.copyWith(
-            errorState:
-                freezed == errorState
-                    ? _value.errorState
-                    : errorState // ignore: cast_nullable_to_non_nullable
-                        as dynamic,
-            retryList:
-                null == retryList
-                    ? _value.retryList
-                    : retryList // ignore: cast_nullable_to_non_nullable
-                        as List<Future<void> Function()>,
-          )
-          as $Val,
-    );
+  $Res call({
+    Object? errorState = freezed,
+    Object? retryList = null,
+  }) {
+    return _then(_value.copyWith(
+      errorState: freezed == errorState
+          ? _value.errorState
+          : errorState // ignore: cast_nullable_to_non_nullable
+              as dynamic,
+      retryList: null == retryList
+          ? _value.retryList
+          : retryList // ignore: cast_nullable_to_non_nullable
+              as List<Future<void> Function()>,
+    ) as $Val);
   }
 }
 
@@ -75,9 +71,8 @@ class _$ApiErrorStateCopyWithImpl<$Res, $Val extends ApiErrorState>
 abstract class _$$ApiErrorStateImplCopyWith<$Res>
     implements $ApiErrorStateCopyWith<$Res> {
   factory _$$ApiErrorStateImplCopyWith(
-    _$ApiErrorStateImpl value,
-    $Res Function(_$ApiErrorStateImpl) then,
-  ) = __$$ApiErrorStateImplCopyWithImpl<$Res>;
+          _$ApiErrorStateImpl value, $Res Function(_$ApiErrorStateImpl) then) =
+      __$$ApiErrorStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({dynamic errorState, List<Future<void> Function()> retryList});
@@ -88,35 +83,34 @@ class __$$ApiErrorStateImplCopyWithImpl<$Res>
     extends _$ApiErrorStateCopyWithImpl<$Res, _$ApiErrorStateImpl>
     implements _$$ApiErrorStateImplCopyWith<$Res> {
   __$$ApiErrorStateImplCopyWithImpl(
-    _$ApiErrorStateImpl _value,
-    $Res Function(_$ApiErrorStateImpl) _then,
-  ) : super(_value, _then);
+      _$ApiErrorStateImpl _value, $Res Function(_$ApiErrorStateImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of ApiErrorState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? errorState = freezed, Object? retryList = null}) {
-    return _then(
-      _$ApiErrorStateImpl(
-        errorState: freezed == errorState ? _value.errorState! : errorState,
-        retryList:
-            null == retryList
-                ? _value._retryList
-                : retryList // ignore: cast_nullable_to_non_nullable
-                    as List<Future<void> Function()>,
-      ),
-    );
+  $Res call({
+    Object? errorState = freezed,
+    Object? retryList = null,
+  }) {
+    return _then(_$ApiErrorStateImpl(
+      errorState: freezed == errorState ? _value.errorState! : errorState,
+      retryList: null == retryList
+          ? _value._retryList
+          : retryList // ignore: cast_nullable_to_non_nullable
+              as List<Future<void> Function()>,
+    ));
   }
 }
 
 /// @nodoc
 
 class _$ApiErrorStateImpl implements _ApiErrorState {
-  const _$ApiErrorStateImpl({
-    this.errorState = ErrorState.noError,
-    final List<Future<void> Function()> retryList = const [],
-  }) : _retryList = retryList;
+  const _$ApiErrorStateImpl(
+      {this.errorState = ErrorState.noError,
+      final List<Future<void> Function()> retryList = const []})
+      : _retryList = retryList;
 
   @override
   @JsonKey()
@@ -140,22 +134,17 @@ class _$ApiErrorStateImpl implements _ApiErrorState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ApiErrorStateImpl &&
-            const DeepCollectionEquality().equals(
-              other.errorState,
-              errorState,
-            ) &&
-            const DeepCollectionEquality().equals(
-              other._retryList,
-              _retryList,
-            ));
+            const DeepCollectionEquality()
+                .equals(other.errorState, errorState) &&
+            const DeepCollectionEquality()
+                .equals(other._retryList, _retryList));
   }
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(errorState),
-    const DeepCollectionEquality().hash(_retryList),
-  );
+      runtimeType,
+      const DeepCollectionEquality().hash(errorState),
+      const DeepCollectionEquality().hash(_retryList));
 
   /// Create a copy of ApiErrorState
   /// with the given fields replaced by the non-null parameter values.
@@ -167,10 +156,9 @@ class _$ApiErrorStateImpl implements _ApiErrorState {
 }
 
 abstract class _ApiErrorState implements ApiErrorState {
-  const factory _ApiErrorState({
-    final dynamic errorState,
-    final List<Future<void> Function()> retryList,
-  }) = _$ApiErrorStateImpl;
+  const factory _ApiErrorState(
+      {final dynamic errorState,
+      final List<Future<void> Function()> retryList}) = _$ApiErrorStateImpl;
 
   @override
   dynamic get errorState;
