@@ -323,26 +323,4 @@ Future<void> _onDrop(DropDoneDetails details) async {
     );
   }
   
-  // 根据文件类型返回对应的图标
-  Widget _getFileIcon(String fileType) {
-    IconData iconData;
-    Color iconColor;
-    
-    switch (fileType.toLowerCase()) {
-      case 'mp4':
-      case 'avi':
-      case 'mov':
-      case 'mkv':
-      case 'wmv':
-      case 'flv':
-        iconData = Icons.video_file;
-        iconColor = Colors.red;
-        break;
-      default:
-        iconData = Icons.insert_drive_file;
-        iconColor = Colors.blue;
-    }
-    
-    return Icon(iconData, color: iconColor);
-  }
 }

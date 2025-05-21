@@ -23,29 +23,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // Unified list for all tasks, including initial ones and newly added ones.
   List<Map<String, dynamic>> _allTasks = [
-    // Initial placeholder tasks
-    {
-      "name": "产品演示视频.mp4",
-      "time": "2024-01-18 14:30",
-      "source": "中文",
-      "target": "英语",
-      "status": "已完成",
-      "path": null, // Ensure all task items have consistent keys
-      "formattedSize": "N/A",
-      "type": "mp4",
-      "error": null,
-    },
-    {
-      "name": "会议记录.mp4",
-      "time": "2024-01-18 10:15",
-      "source": "中文",
-      "target": "日语",
-      "status": "处理中",
-      "path": null, // Ensure all task items have consistent keys
-      "formattedSize": "N/A",
-      "type": "mp4",
-      "error": null,
-    },
+ 
   ];
 
   @override
