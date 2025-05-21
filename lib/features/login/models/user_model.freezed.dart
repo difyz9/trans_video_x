@@ -12,8 +12,7 @@ part of 'user_model.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 CredentialsResponse _$CredentialsResponseFromJson(Map<String, dynamic> json) {
   return _CredentialsResponse.fromJson(json);
@@ -40,17 +39,15 @@ mixin _$CredentialsResponse {
 /// @nodoc
 abstract class $CredentialsResponseCopyWith<$Res> {
   factory $CredentialsResponseCopyWith(
-    CredentialsResponse value,
-    $Res Function(CredentialsResponse) then,
-  ) = _$CredentialsResponseCopyWithImpl<$Res, CredentialsResponse>;
+          CredentialsResponse value, $Res Function(CredentialsResponse) then) =
+      _$CredentialsResponseCopyWithImpl<$Res, CredentialsResponse>;
   @useResult
-  $Res call({
-    TemporaryCredentials credentials,
-    String requestId,
-    String expiration,
-    int startTime,
-    int expiredTime,
-  });
+  $Res call(
+      {TemporaryCredentials credentials,
+      String requestId,
+      String expiration,
+      int startTime,
+      int expiredTime});
 
   $TemporaryCredentialsCopyWith<$Res> get credentials;
 }
@@ -76,36 +73,28 @@ class _$CredentialsResponseCopyWithImpl<$Res, $Val extends CredentialsResponse>
     Object? startTime = null,
     Object? expiredTime = null,
   }) {
-    return _then(
-      _value.copyWith(
-            credentials:
-                null == credentials
-                    ? _value.credentials
-                    : credentials // ignore: cast_nullable_to_non_nullable
-                        as TemporaryCredentials,
-            requestId:
-                null == requestId
-                    ? _value.requestId
-                    : requestId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            expiration:
-                null == expiration
-                    ? _value.expiration
-                    : expiration // ignore: cast_nullable_to_non_nullable
-                        as String,
-            startTime:
-                null == startTime
-                    ? _value.startTime
-                    : startTime // ignore: cast_nullable_to_non_nullable
-                        as int,
-            expiredTime:
-                null == expiredTime
-                    ? _value.expiredTime
-                    : expiredTime // ignore: cast_nullable_to_non_nullable
-                        as int,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      credentials: null == credentials
+          ? _value.credentials
+          : credentials // ignore: cast_nullable_to_non_nullable
+              as TemporaryCredentials,
+      requestId: null == requestId
+          ? _value.requestId
+          : requestId // ignore: cast_nullable_to_non_nullable
+              as String,
+      expiration: null == expiration
+          ? _value.expiration
+          : expiration // ignore: cast_nullable_to_non_nullable
+              as String,
+      startTime: null == startTime
+          ? _value.startTime
+          : startTime // ignore: cast_nullable_to_non_nullable
+              as int,
+      expiredTime: null == expiredTime
+          ? _value.expiredTime
+          : expiredTime // ignore: cast_nullable_to_non_nullable
+              as int,
+    ) as $Val);
   }
 
   /// Create a copy of CredentialsResponse
@@ -122,19 +111,17 @@ class _$CredentialsResponseCopyWithImpl<$Res, $Val extends CredentialsResponse>
 /// @nodoc
 abstract class _$$CredentialsResponseImplCopyWith<$Res>
     implements $CredentialsResponseCopyWith<$Res> {
-  factory _$$CredentialsResponseImplCopyWith(
-    _$CredentialsResponseImpl value,
-    $Res Function(_$CredentialsResponseImpl) then,
-  ) = __$$CredentialsResponseImplCopyWithImpl<$Res>;
+  factory _$$CredentialsResponseImplCopyWith(_$CredentialsResponseImpl value,
+          $Res Function(_$CredentialsResponseImpl) then) =
+      __$$CredentialsResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    TemporaryCredentials credentials,
-    String requestId,
-    String expiration,
-    int startTime,
-    int expiredTime,
-  });
+  $Res call(
+      {TemporaryCredentials credentials,
+      String requestId,
+      String expiration,
+      int startTime,
+      int expiredTime});
 
   @override
   $TemporaryCredentialsCopyWith<$Res> get credentials;
@@ -144,10 +131,9 @@ abstract class _$$CredentialsResponseImplCopyWith<$Res>
 class __$$CredentialsResponseImplCopyWithImpl<$Res>
     extends _$CredentialsResponseCopyWithImpl<$Res, _$CredentialsResponseImpl>
     implements _$$CredentialsResponseImplCopyWith<$Res> {
-  __$$CredentialsResponseImplCopyWithImpl(
-    _$CredentialsResponseImpl _value,
-    $Res Function(_$CredentialsResponseImpl) _then,
-  ) : super(_value, _then);
+  __$$CredentialsResponseImplCopyWithImpl(_$CredentialsResponseImpl _value,
+      $Res Function(_$CredentialsResponseImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of CredentialsResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -160,48 +146,40 @@ class __$$CredentialsResponseImplCopyWithImpl<$Res>
     Object? startTime = null,
     Object? expiredTime = null,
   }) {
-    return _then(
-      _$CredentialsResponseImpl(
-        credentials:
-            null == credentials
-                ? _value.credentials
-                : credentials // ignore: cast_nullable_to_non_nullable
-                    as TemporaryCredentials,
-        requestId:
-            null == requestId
-                ? _value.requestId
-                : requestId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        expiration:
-            null == expiration
-                ? _value.expiration
-                : expiration // ignore: cast_nullable_to_non_nullable
-                    as String,
-        startTime:
-            null == startTime
-                ? _value.startTime
-                : startTime // ignore: cast_nullable_to_non_nullable
-                    as int,
-        expiredTime:
-            null == expiredTime
-                ? _value.expiredTime
-                : expiredTime // ignore: cast_nullable_to_non_nullable
-                    as int,
-      ),
-    );
+    return _then(_$CredentialsResponseImpl(
+      credentials: null == credentials
+          ? _value.credentials
+          : credentials // ignore: cast_nullable_to_non_nullable
+              as TemporaryCredentials,
+      requestId: null == requestId
+          ? _value.requestId
+          : requestId // ignore: cast_nullable_to_non_nullable
+              as String,
+      expiration: null == expiration
+          ? _value.expiration
+          : expiration // ignore: cast_nullable_to_non_nullable
+              as String,
+      startTime: null == startTime
+          ? _value.startTime
+          : startTime // ignore: cast_nullable_to_non_nullable
+              as int,
+      expiredTime: null == expiredTime
+          ? _value.expiredTime
+          : expiredTime // ignore: cast_nullable_to_non_nullable
+              as int,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$CredentialsResponseImpl implements _CredentialsResponse {
-  const _$CredentialsResponseImpl({
-    required this.credentials,
-    required this.requestId,
-    required this.expiration,
-    required this.startTime,
-    required this.expiredTime,
-  });
+  const _$CredentialsResponseImpl(
+      {required this.credentials,
+      required this.requestId,
+      required this.expiration,
+      required this.startTime,
+      required this.expiredTime});
 
   factory _$CredentialsResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$CredentialsResponseImplFromJson(json);
@@ -242,13 +220,7 @@ class _$CredentialsResponseImpl implements _CredentialsResponse {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    credentials,
-    requestId,
-    expiration,
-    startTime,
-    expiredTime,
-  );
+      runtimeType, credentials, requestId, expiration, startTime, expiredTime);
 
   /// Create a copy of CredentialsResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -257,24 +229,23 @@ class _$CredentialsResponseImpl implements _CredentialsResponse {
   @pragma('vm:prefer-inline')
   _$$CredentialsResponseImplCopyWith<_$CredentialsResponseImpl> get copyWith =>
       __$$CredentialsResponseImplCopyWithImpl<_$CredentialsResponseImpl>(
-        this,
-        _$identity,
-      );
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$CredentialsResponseImplToJson(this);
+    return _$$CredentialsResponseImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _CredentialsResponse implements CredentialsResponse {
-  const factory _CredentialsResponse({
-    required final TemporaryCredentials credentials,
-    required final String requestId,
-    required final String expiration,
-    required final int startTime,
-    required final int expiredTime,
-  }) = _$CredentialsResponseImpl;
+  const factory _CredentialsResponse(
+      {required final TemporaryCredentials credentials,
+      required final String requestId,
+      required final String expiration,
+      required final int startTime,
+      required final int expiredTime}) = _$CredentialsResponseImpl;
 
   factory _CredentialsResponse.fromJson(Map<String, dynamic> json) =
       _$CredentialsResponseImpl.fromJson;
@@ -320,19 +291,16 @@ mixin _$TemporaryCredentials {
 
 /// @nodoc
 abstract class $TemporaryCredentialsCopyWith<$Res> {
-  factory $TemporaryCredentialsCopyWith(
-    TemporaryCredentials value,
-    $Res Function(TemporaryCredentials) then,
-  ) = _$TemporaryCredentialsCopyWithImpl<$Res, TemporaryCredentials>;
+  factory $TemporaryCredentialsCopyWith(TemporaryCredentials value,
+          $Res Function(TemporaryCredentials) then) =
+      _$TemporaryCredentialsCopyWithImpl<$Res, TemporaryCredentials>;
   @useResult
   $Res call({String tmpSecretId, String tmpSecretKey, String sessionToken});
 }
 
 /// @nodoc
-class _$TemporaryCredentialsCopyWithImpl<
-  $Res,
-  $Val extends TemporaryCredentials
->
+class _$TemporaryCredentialsCopyWithImpl<$Res,
+        $Val extends TemporaryCredentials>
     implements $TemporaryCredentialsCopyWith<$Res> {
   _$TemporaryCredentialsCopyWithImpl(this._value, this._then);
 
@@ -350,36 +318,29 @@ class _$TemporaryCredentialsCopyWithImpl<
     Object? tmpSecretKey = null,
     Object? sessionToken = null,
   }) {
-    return _then(
-      _value.copyWith(
-            tmpSecretId:
-                null == tmpSecretId
-                    ? _value.tmpSecretId
-                    : tmpSecretId // ignore: cast_nullable_to_non_nullable
-                        as String,
-            tmpSecretKey:
-                null == tmpSecretKey
-                    ? _value.tmpSecretKey
-                    : tmpSecretKey // ignore: cast_nullable_to_non_nullable
-                        as String,
-            sessionToken:
-                null == sessionToken
-                    ? _value.sessionToken
-                    : sessionToken // ignore: cast_nullable_to_non_nullable
-                        as String,
-          )
-          as $Val,
-    );
+    return _then(_value.copyWith(
+      tmpSecretId: null == tmpSecretId
+          ? _value.tmpSecretId
+          : tmpSecretId // ignore: cast_nullable_to_non_nullable
+              as String,
+      tmpSecretKey: null == tmpSecretKey
+          ? _value.tmpSecretKey
+          : tmpSecretKey // ignore: cast_nullable_to_non_nullable
+              as String,
+      sessionToken: null == sessionToken
+          ? _value.sessionToken
+          : sessionToken // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
   }
 }
 
 /// @nodoc
 abstract class _$$TemporaryCredentialsImplCopyWith<$Res>
     implements $TemporaryCredentialsCopyWith<$Res> {
-  factory _$$TemporaryCredentialsImplCopyWith(
-    _$TemporaryCredentialsImpl value,
-    $Res Function(_$TemporaryCredentialsImpl) then,
-  ) = __$$TemporaryCredentialsImplCopyWithImpl<$Res>;
+  factory _$$TemporaryCredentialsImplCopyWith(_$TemporaryCredentialsImpl value,
+          $Res Function(_$TemporaryCredentialsImpl) then) =
+      __$$TemporaryCredentialsImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String tmpSecretId, String tmpSecretKey, String sessionToken});
@@ -389,10 +350,9 @@ abstract class _$$TemporaryCredentialsImplCopyWith<$Res>
 class __$$TemporaryCredentialsImplCopyWithImpl<$Res>
     extends _$TemporaryCredentialsCopyWithImpl<$Res, _$TemporaryCredentialsImpl>
     implements _$$TemporaryCredentialsImplCopyWith<$Res> {
-  __$$TemporaryCredentialsImplCopyWithImpl(
-    _$TemporaryCredentialsImpl _value,
-    $Res Function(_$TemporaryCredentialsImpl) _then,
-  ) : super(_value, _then);
+  __$$TemporaryCredentialsImplCopyWithImpl(_$TemporaryCredentialsImpl _value,
+      $Res Function(_$TemporaryCredentialsImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of TemporaryCredentials
   /// with the given fields replaced by the non-null parameter values.
@@ -403,36 +363,30 @@ class __$$TemporaryCredentialsImplCopyWithImpl<$Res>
     Object? tmpSecretKey = null,
     Object? sessionToken = null,
   }) {
-    return _then(
-      _$TemporaryCredentialsImpl(
-        tmpSecretId:
-            null == tmpSecretId
-                ? _value.tmpSecretId
-                : tmpSecretId // ignore: cast_nullable_to_non_nullable
-                    as String,
-        tmpSecretKey:
-            null == tmpSecretKey
-                ? _value.tmpSecretKey
-                : tmpSecretKey // ignore: cast_nullable_to_non_nullable
-                    as String,
-        sessionToken:
-            null == sessionToken
-                ? _value.sessionToken
-                : sessionToken // ignore: cast_nullable_to_non_nullable
-                    as String,
-      ),
-    );
+    return _then(_$TemporaryCredentialsImpl(
+      tmpSecretId: null == tmpSecretId
+          ? _value.tmpSecretId
+          : tmpSecretId // ignore: cast_nullable_to_non_nullable
+              as String,
+      tmpSecretKey: null == tmpSecretKey
+          ? _value.tmpSecretKey
+          : tmpSecretKey // ignore: cast_nullable_to_non_nullable
+              as String,
+      sessionToken: null == sessionToken
+          ? _value.sessionToken
+          : sessionToken // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$TemporaryCredentialsImpl implements _TemporaryCredentials {
-  const _$TemporaryCredentialsImpl({
-    required this.tmpSecretId,
-    required this.tmpSecretKey,
-    required this.sessionToken,
-  });
+  const _$TemporaryCredentialsImpl(
+      {required this.tmpSecretId,
+      required this.tmpSecretKey,
+      required this.sessionToken});
 
   factory _$TemporaryCredentialsImpl.fromJson(Map<String, dynamic> json) =>
       _$$TemporaryCredentialsImplFromJson(json);
@@ -473,24 +427,23 @@ class _$TemporaryCredentialsImpl implements _TemporaryCredentials {
   @override
   @pragma('vm:prefer-inline')
   _$$TemporaryCredentialsImplCopyWith<_$TemporaryCredentialsImpl>
-  get copyWith =>
-      __$$TemporaryCredentialsImplCopyWithImpl<_$TemporaryCredentialsImpl>(
-        this,
-        _$identity,
-      );
+      get copyWith =>
+          __$$TemporaryCredentialsImplCopyWithImpl<_$TemporaryCredentialsImpl>(
+              this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$TemporaryCredentialsImplToJson(this);
+    return _$$TemporaryCredentialsImplToJson(
+      this,
+    );
   }
 }
 
 abstract class _TemporaryCredentials implements TemporaryCredentials {
-  const factory _TemporaryCredentials({
-    required final String tmpSecretId,
-    required final String tmpSecretKey,
-    required final String sessionToken,
-  }) = _$TemporaryCredentialsImpl;
+  const factory _TemporaryCredentials(
+      {required final String tmpSecretId,
+      required final String tmpSecretKey,
+      required final String sessionToken}) = _$TemporaryCredentialsImpl;
 
   factory _TemporaryCredentials.fromJson(Map<String, dynamic> json) =
       _$TemporaryCredentialsImpl.fromJson;
@@ -507,5 +460,5 @@ abstract class _TemporaryCredentials implements TemporaryCredentials {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TemporaryCredentialsImplCopyWith<_$TemporaryCredentialsImpl>
-  get copyWith => throw _privateConstructorUsedError;
+      get copyWith => throw _privateConstructorUsedError;
 }

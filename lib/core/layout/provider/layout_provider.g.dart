@@ -14,15 +14,14 @@ String _$gradientColorHash() => r'14bb760ee270fb8ba0ac4a49a694b160cc6968ea';
 @ProviderFor(GradientColor)
 final gradientColorProvider =
     AutoDisposeNotifierProvider<GradientColor, List<Color>>.internal(
-      GradientColor.new,
-      name: r'gradientColorProvider',
-      debugGetCreateSourceHash:
-          const bool.fromEnvironment('dart.vm.product')
-              ? null
-              : _$gradientColorHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  GradientColor.new,
+  name: r'gradientColorProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$gradientColorHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$GradientColor = AutoDisposeNotifier<List<Color>>;
 String _$languageHash() => r'ecfe428f486aa59c5436b40233a8b3ffed4e9e8a';

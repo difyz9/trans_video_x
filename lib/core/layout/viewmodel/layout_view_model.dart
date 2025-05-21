@@ -22,6 +22,7 @@ class LayoutViewModel extends _$LayoutViewModel{
     SidebarItem(key: "upload", icon: Icons.upload, route: UploadRoute()),
     SidebarItem(key: "task", icon: Icons.task, route: TaskRoute()),
     SidebarItem(key: "setting", icon: Icons.settings, route: SettingRoute()),
+    SidebarItem(key: "upload02", icon: Icons.upload, route: Upload02Route()),
 
     
   ];

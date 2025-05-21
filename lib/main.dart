@@ -15,6 +15,7 @@ import 'package:trans_video_x/core/constants/app_config.dart';
 
 
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -35,14 +36,13 @@ void main() async {
     final bucketName = dotenv.env['COS_BUCKET'] ?? "";
     final region = dotenv.env['COS_REGION'] ?? "";
 
-    print(appId);
-    print(secretId);
-    print(secretKey);
-    print(bucketName);
-    print(region);
+    // print(appId);
+    // print(secretId);
+    // print(secretKey);
+    // print(bucketName);
+    // print(region);
 
-        await AppConfig.instance.initialize();
-
+    await AppConfig.instance.initialize();
 
     ApiService().startServer();
     await CosService.initialize(
