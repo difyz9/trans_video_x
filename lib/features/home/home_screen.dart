@@ -233,10 +233,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: 32),
 
             // Recent Tasks Section
-            const Text(
+        
+            Row(
+              children: [
+                    const Text(
               '任务列表',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {},
+                  tooltip: 'Settings',),
+              ],
+            ),
+
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
