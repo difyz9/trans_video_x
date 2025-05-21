@@ -294,7 +294,6 @@ Future<void> _onDrop(DropDoneDetails details) async {
                       )
                     : _fileInfoList.isEmpty
                         ? Center(
-                        
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

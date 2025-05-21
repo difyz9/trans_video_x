@@ -5,8 +5,6 @@ import 'package:trans_video_x/core/widget/file_drop_screen.dart'; // Added impor
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p; // For path manipulation
 
-
-
 @RoutePage()
 
 
