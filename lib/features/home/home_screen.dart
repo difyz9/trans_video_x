@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:trans_video_x/core/widget/file_drop_screen.dart'; // Added import
-import 'package:file_picker/file_picker.dart';
-import 'package:path/path.dart' as p; // For path manipulation
+import 'package:trans_video_x/core/widget/file_drop_screen.dart';
+import 'package:intl/intl.dart'; // Added for DateFormat
 
 @RoutePage()
-
-
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -16,71 +13,62 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final List<PlatformFile> _files = [];
-  String? _folderPath;
-  bool _dragging = false;
+  String _selectedSourceLanguage = '中文';
+  String _selectedTargetLanguage = 'English';
 
-    void _handleFilesSelected(List<Map<String, dynamic>> selectedFilesData) {
+  // Unified list for all tasks, including initial ones and newly added ones.
+  List<Map<String, dynamic>> _allTasks = [
+    // Initial placeholder tasks
+    {
+      "name": "产品演示视频.mp4",
+      "time": "2024-01-18 14:30",
+      "source": "中文",
+      "target": "英语",
+      "status": "已完成",
+      "path": null, // Ensure all task items have consistent keys
+      "formattedSize": "N/A",
+      "type": "mp4",
+    },
+    {
+      "name": "会议记录.mp4",
+      "time": "2024-01-18 10:15",
+      "source": "中文",
+      "target": "日语",
+      "status": "处理中",
+      "path": null, // Ensure all task items have consistent keys
+      "formattedSize": "N/A",
+      "type": "mp4",
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize _allTasks if needed from persistence or other sources in the future
+  }
+
+  void _handleFilesSelected(List<Map<String, dynamic>> selectedFilesData) {
+    final newTasks = selectedFilesData.map((fileData) {
+      return {
+        'name': fileData['name'] as String,
+        'path': fileData['path'] as String,
+        'size': fileData['size'] as int, // From FileDropWidget
+        'formattedSize': fileData['formattedSize'] as String, // From FileDropWidget
+        'type': fileData['type'] as String, // From FileDropWidget
+        'time': DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
+        'source': _selectedSourceLanguage,
+        'target': _selectedTargetLanguage,
+        'status': '待处理', // New status for pending tasks
+      };
+    }).toList();
+
     setState(() {
-      _files.clear();
-      _files.addAll(selectedFilesData.map((fileData) => PlatformFile(
-            name: fileData['name'] as String,
-            path: fileData['path'] as String,
-            size: fileData['size'] as int,
-          )));
-      // _folderPath = null; // Ensure folderPath is null as we get a flat list
+      _allTasks.insertAll(0, newTasks); // Add new tasks to the top of the list
     });
   }
 
-
-  List<Map<String, dynamic>> _platformFilesToMapList(List<PlatformFile> platformFiles) {
-    return platformFiles.map((pf) {
-      String formattedSize;
-      final size = pf.size;
-      if (size < 1024) {
-        formattedSize = '$size B';
-      } else if (size < 1024 * 1024) {
-        formattedSize = '${(size / 1024).toStringAsFixed(2)} KB';
-      } else if (size < 1024 * 1024 * 1024) {
-        formattedSize = '${(size / (1024 * 1024)).toStringAsFixed(2)} MB';
-      } else {
-        formattedSize = '${(size / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-      }
-      return {
-        'name': pf.name,
-        'path': pf.path,
-        'size': pf.size,
-        'formattedSize': formattedSize,
-        'type': pf.extension?.toLowerCase() ?? p.extension(pf.name).replaceFirst('.', '').toLowerCase(),
-      };
-    }).toList();
-  }
-  
-
   @override
   Widget build(BuildContext context) {
-    // Placeholder data for recent tasks
-    final List<Map<String, String>> recentTasks = [
-      {
-        "name": "产品演示视频.mp4",
-        "time": "2024-01-18 14:30",
-        "source": "中文",
-        "target": "英语",
-        "status": "已完成"
-      },
-      {
-        "name": "会议记录.mp4",
-        "time": "2024-01-18 10:15",
-        "source": "中文",
-        "target": "日语",
-        "status": "处理中"
-      },
-    ];
-
-
-        final initialFilesForDropWidget = _platformFilesToMapList(_files);
-
-
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -125,7 +113,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       isDense: true, // Makes the field more compact
                       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12), // Adjust padding
                     ),
-                    value: '中文', // Default value
+                    value: _selectedSourceLanguage, // Use state variable
                     items: ['中文', 'English']
                         .map((label) => DropdownMenuItem(
                               value: label,
@@ -133,7 +121,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ))
                         .toList(),
                     onChanged: (value) {
-                      // TODO: Handle source language change
+                      if (value != null) {
+                        setState(() {
+                          _selectedSourceLanguage = value;
+                        });
+                      }
                     },
                   ),
                 ),
@@ -151,7 +143,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       isDense: true, // Makes the field more compact
                       contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12), // Adjusted horizontal padding
                     ),
-                    value: 'English', // Default value
+                    value: _selectedTargetLanguage, // Use state variable
                     items: ['English', '日语', '中文']
                         .map((label) => DropdownMenuItem(
                               value: label,
@@ -159,7 +151,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ))
                         .toList(),
                     onChanged: (value) {
-                      // TODO: Handle target language change
+                      if (value != null) {
+                        setState(() {
+                          _selectedTargetLanguage = value;
+                        });
+                      }
                     },
                   ),
                 ),
@@ -174,104 +170,110 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
-                 FileDropWidget(
+            FileDropWidget(
               onFilesSelected: _handleFilesSelected,
-              initialFiles: initialFilesForDropWidget,
-    
+              initialFiles: const [], // Pass empty list to clear FileDropWidget after selection
             ),
-
-            // File Upload Area
-            // Container(
-            //   padding: const EdgeInsets.all(32.0),
-            //   decoration: BoxDecoration(
-            //     border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid, width: 2),
-            //     borderRadius: BorderRadius.circular(8.0),
-            //     color: Colors.grey.shade50,
-            //   ),
-            //   child: Center(
-            //     child: Column(
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         const Icon(Icons.upload_file, size: 48, color: Colors.grey),
-            //         const SizedBox(height: 16),
-            //         const Text(
-            //           '拖拽视频文件到这里, 或',
-            //           textAlign: TextAlign.center,
-            //           style: TextStyle(fontSize: 16),
-            //         ),
-            //         const SizedBox(height: 16),
-            //         ElevatedButton(
-            //           child: const Text('选择文件'),
-            //           onPressed: () {
-            //             // TODO: Implement file selection
-            //           },
-            //           style: ElevatedButton.styleFrom(
-            //             backgroundColor: Colors.blue,
-            //             foregroundColor: Colors.white,
-            //           ),
-            //         ),
-            //         const SizedBox(height: 16),
-            //         const Text(
-            //           '支持 MP4、AVI、MOV 等格式, 最大 5G',
-            //           style: TextStyle(fontSize: 12, color: Colors.grey),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
+            
             const SizedBox(height: 32),
 
             // Recent Tasks Section
             const Text(
-              '最近任务',
+              '任务列表',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: DataTable(
-                columnSpacing: 16,
+                columnSpacing: 24, // Increased column spacing
+                dataRowMinHeight: 52, // Added min height for data rows
+                dataRowMaxHeight: 64, // Added max height for data rows
+                headingRowHeight: 56, // Increased heading row height
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 headingRowColor: MaterialStateProperty.all(Colors.grey.shade100),
                 columns: const [
-                  DataColumn(label: Text('文件名', style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('上传时间', style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('源语言', style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('目标语言', style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('状态', style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('操作', style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('文件名', style: TextStyle(fontWeight: FontWeight.bold)))),
+                  DataColumn(label: Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('上传时间', style: TextStyle(fontWeight: FontWeight.bold)))),
+                  DataColumn(label: Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('源语言', style: TextStyle(fontWeight: FontWeight.bold)))),
+                  DataColumn(label: Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('目标语言', style: TextStyle(fontWeight: FontWeight.bold)))),
+                  DataColumn(label: Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('状态', style: TextStyle(fontWeight: FontWeight.bold)))),
+                  DataColumn(label: Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('操作', style: TextStyle(fontWeight: FontWeight.bold)))),
                 ],
-                rows: recentTasks.map((task) {
+                rows: _allTasks.map((task) {
                   return DataRow(cells: [
-                    DataCell(Text(task['name']!)),
-                    DataCell(Text(task['time']!)),
-                    DataCell(Text(task['source']!)),
-                    DataCell(Text(task['target']!)),
+                    DataCell(Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), child: Text(task['name']! as String))),
+                    DataCell(Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), child: Text(task['time']! as String))),
+                    DataCell(Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), child: Text(task['source']! as String))),
+                    DataCell(Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), child: Text(task['target']! as String))),
                     DataCell(
-                      Chip(
-                        label: Text(task['status']!),
-                        backgroundColor: task['status'] == '已完成' ? Colors.green.shade100 : Colors.orange.shade100,
-                        labelStyle: TextStyle(
-                          color: task['status'] == '已完成' ? Colors.green.shade800 : Colors.orange.shade800,
-                          fontWeight: FontWeight.bold
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        child: Chip(
+                          label: Text(task['status']! as String),
+                          backgroundColor: task['status'] == '已完成' 
+                              ? Colors.green.shade100 
+                              : task['status'] == '处理中' 
+                                  ? Colors.orange.shade100 
+                                  : task['status'] == '待处理'
+                                      ? Colors.blue.shade100
+                                      : Colors.grey.shade100, // Default color
+                          labelStyle: TextStyle(
+                            color: task['status'] == '已完成' 
+                                ? Colors.green.shade800 
+                                : task['status'] == '处理中' 
+                                    ? Colors.orange.shade800
+                                    : task['status'] == '待处理'
+                                        ? Colors.blue.shade800
+                                        : Colors.black, // Default color
+                            fontWeight: FontWeight.bold
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      )
+                      ),
                     ),
-                    DataCell(Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(icon: const Icon(Icons.download_outlined, color: Colors.blue), onPressed: () {
-                           // TODO: Implement download
-                        }),
-                        IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () {
-                           // TODO: Implement delete
-                        }),
-                      ],
-                    )),
+                    DataCell(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        child: task['status'] == '待处理'
+                          ? ElevatedButton(
+                              child: const Text('开始任务'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                textStyle: const TextStyle(fontSize: 12)
+                              ),
+                              onPressed: () {
+                                // TODO: Implement start task logic
+                                print('Start task for: ${task['name']} at path ${task['path']}');
+                                setState(() {
+                                  task['status'] = '处理中'; 
+                                });
+                              },
+                            )
+                          : Row( 
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (task['status'] == '已完成')
+                                  IconButton(icon: const Icon(Icons.download_outlined, color: Colors.blue), onPressed: () {
+                                    print('Download: ${task['name']}');
+                                    // TODO: Implement download
+                                  }),
+                                IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () {
+                                  print('Delete: ${task['name']}');
+                                  setState(() {
+                                    _allTasks.remove(task);
+                                  });
+                                  // TODO: Implement delete
+                                }),
+                              ],
+                            ),
+                      ),
+                    ),
                   ]);
                 }).toList(),
               ),

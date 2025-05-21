@@ -292,8 +292,7 @@ Future<void> _onDrop(DropDoneDetails details) async {
                           ],
                         ),
                       )
-                    : _fileInfoList.isEmpty
-                        ? Center(
+                    :  Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -316,34 +315,7 @@ Future<void> _onDrop(DropDoneDetails details) async {
                                 ),
                               ],
                             ))
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: _fileInfoList.length,
-                            itemBuilder: (context, index) {
-                              final fileInfo = _fileInfoList[index];
-                              return Card(
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 8),
-                                child: ListTile(
-                                  leading: _getFileIcon(fileInfo['type']),
-                                  title: Text(fileInfo['name']),
-                                  subtitle: Text('${fileInfo['formattedSize']} · ${fileInfo['type'].toUpperCase()}'),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.close),
-                                    onPressed: () {
-                                      setState(() {
-                                        _fileInfoList.removeAt(index);
-                                      });
-                                      // 调用回调函数，将更新后的文件信息传递给父组件
-                                      if (widget.onFilesSelected != null) {
-                                        widget.onFilesSelected!(_fileInfoList);
-                                      }
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                       
               ),
             ),
           ),
