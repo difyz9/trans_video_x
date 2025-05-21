@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:trans_video_x/core/cos/providers/cos_providers.dart';
+import 'package:trans_video_x/core/utils/file_utils.dart';
 import 'package:trans_video_x/core/widget/file_drop_screen.dart';
 import 'package:intl/intl.dart'; // Added for DateFormat
 import 'package:hive_flutter/hive_flutter.dart'; // For Hive
@@ -71,8 +72,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     // Generate a timestamp-based key for COS
     final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    final String? fileHash = await FileUtils.instance.getFileHashKey(localFilePath); // Await the hash
+
+    final String fileName = fileHash?.substring(0, 10) ?? timestamp;
+
     final String fileExtension = originalFileName.contains('.') ? originalFileName.substring(originalFileName.lastIndexOf('.')) : '';
-    final String cosObjectKey = 'uploads/$timestamp$fileExtension'; // Example: uploads/1678886400000.mp4
+    final String cosObjectKey = 'uploads/$fileName$fileExtension'; // Example: uploads/1678886400000.mp4
+
+
 
     try {
       if (mounted) {
