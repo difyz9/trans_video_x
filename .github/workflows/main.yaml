@@ -39,7 +39,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.2' # Specify your desired Flutter version
+          flutter-version: '3.22.0' # Specify your desired Flutter version
           channel: 'stable'
           cache: true
 
@@ -65,6 +65,9 @@ jobs:
             echo "VERSION_TAG_VALUE=${{ env.APP_VERSION }}-dev-${GITHUB_SHA::7}" >> $GITHUB_ENV
           fi
           echo "Using version tag for artifact: ${{ env.VERSION_TAG_VALUE }}"
+
+      - name: Clean pub cache
+        run: flutter pub cache repair
 
       - name: Install dependencies
         run: flutter pub get
