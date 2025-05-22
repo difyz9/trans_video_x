@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trans_video_x/core/constants/app_config.dart';
 import 'package:trans_video_x/features/task/model/yt_dlp_video.dart';
-import 'package:trans_video_x/features/video/widgets/skeleton_network_image.dart';
+import 'package:trans_video_x/features/yt_dlp/widgets/skeleton_network_image.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 

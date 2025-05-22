@@ -6,7 +6,7 @@ part of 'layout_view_model.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$layoutViewModelHash() => r'4c042c4042808c056dc0eec8af4c5b8430099a70';
+String _$layoutViewModelHash() => r'98f0d18b8f778ee05202b14777e23bfef81d7fa8';
 
 /// See also [LayoutViewModel].
 @ProviderFor(LayoutViewModel)

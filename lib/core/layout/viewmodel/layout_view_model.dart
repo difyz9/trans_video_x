@@ -22,6 +22,7 @@ class LayoutViewModel extends _$LayoutViewModel{
     // SidebarItem(key: "upload", icon: Icons.upload, route: UploadRoute()),
     // SidebarItem(key: "task", icon: Icons.task, route: TaskRoute()),
     SidebarItem(key: "setting", icon: Icons.settings, route: SettingRoute()),
+    SidebarItem(key: "video_list", icon: Icons.video_library, route: VideoListRoute()),
     // SidebarItem(key: "task02", icon: Icons.history, route: Task02Route()),
     // SidebarItem(key: "upload02", icon: Icons.upload, route: Upload02Route()),
 

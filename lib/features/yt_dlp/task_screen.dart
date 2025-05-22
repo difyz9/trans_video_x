@@ -1,20 +1,23 @@
-import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trans_video_x/features/video/view/info_screen.dart';
-import 'package:trans_video_x/features/video/view/youtube_page.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:trans_video_x/features/yt_dlp/view/task02_screen.dart';
+import 'package:trans_video_x/features/yt_dlp/view/info_screen.dart';
+import 'package:trans_video_x/features/yt_dlp/view/youtube_page.dart';
 import 'package:trans_video_x/features/config/view/config_screen.dart';
 
 
 @RoutePage()
-class DownloadScreen extends ConsumerStatefulWidget {
-  const DownloadScreen({super.key});
+
+class TaskScreen extends ConsumerStatefulWidget {
+  const TaskScreen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _DownloadScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _TaskScreenState();
 }
 
-class _DownloadScreenState extends ConsumerState<DownloadScreen> with TickerProviderStateMixin {
+class _TaskScreenState extends ConsumerState<TaskScreen>  with TickerProviderStateMixin {
+
 
 late TabController _tabController;
 
@@ -35,11 +38,12 @@ late TabController _tabController;
           dividerHeight: 0,
           controller: _tabController,
           tabs: [
-            Tab(icon: Icon(Icons.subscriptions), text: '视频下载'),
             Tab(icon: Icon(Icons.info), text: '任务列表'),
+            Tab(icon: Icon(Icons.subscriptions), text: '视频下载'),
+
             Tab(
               icon: Icon(Icons.settings),
-              text: '配置',
+              text: '设置',
             ),
             
           ],
@@ -48,20 +52,21 @@ late TabController _tabController;
       body: TabBarView(
         controller: _tabController,
         children: [
+                    const Task02Screen(),
+
           Padding(
             padding: const EdgeInsets.all(30.0),
             child: YoutubePage(
               tabController: _tabController,
             ),
           ),
-           const InfoScreen(),
           SingleChildScrollView(
             child: const Padding(
               padding: EdgeInsets.all(30.0),
               child: ConfigScreen(),
             ),
           ),
-         
+          
         ],
       ),
     );

@@ -33,6 +33,7 @@ class AppRouter extends RootStackRouter {
         CustomFadeRoute(page: UploadRoute.page, path: UploadRoute.name),
         AutoRoute(page: HistoryRoute.page,path: HistoryRoute.name) ,
         AutoRoute(page: Task02Route.page,path: Task02Route.name) ,
+        CustomFadeRoute(page: VideoListRoute.page, path: VideoListRoute.name),
       ],
     ),
   ];

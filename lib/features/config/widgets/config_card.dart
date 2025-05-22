@@ -1,7 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:trans_video_x/core/constants/app_config.dart';
-import 'package:trans_video_x/features/video/widgets/tile_checkbox.dart';
+import 'package:trans_video_x/features/yt_dlp/widgets/tile_checkbox.dart';
 
 class ConfigCard extends StatefulWidget {
   const ConfigCard({super.key});
