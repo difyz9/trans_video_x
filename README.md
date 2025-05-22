@@ -83,6 +83,8 @@ flutter run
 ## 📞 联系我
 [![QQ](https://img.shields.io/badge/QQ-1163196003-12b7f5?style=for-the-badge&logo=tencent-qq)](http://wpa.qq.com/msgrd?v=3&uin=1163196003&site=qq&menu=yes)  
 
+📧 联系邮箱： [le_pencil@126.com](le_pencil@126.com)
+
 
 ### 微信交流群
 | 微信 |
