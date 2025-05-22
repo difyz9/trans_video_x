@@ -26,8 +26,11 @@ def convert_srt_to_vtt(input_srt, output_vtt):
             .run(overwrite_output=True)
         )
         print(f"转换成功：{output_vtt}")
-    except ffmpeg.Error as e:
-        print(f"转换失败：{e.stderr.decode('utf-8')}")
+        return True
+    except Exception as e:
+        print(f"转换失败：{str(e)}")
+        return False
+
 
 def extract_audio_from_video(video_path, audio_path):
     try:
@@ -38,12 +41,24 @@ def extract_audio_from_video(video_path, audio_path):
         ffmpeg.run(out)
         print(f"音频已成功从 {video_path} 中分离并保存为 {audio_path}")
         return True
-
-    except ffmpeg.Error as e:
-
-        print(f"处理过程中出现错误: {e.stderr.decode()}")
+    except Exception as e:
+        print(f"处理过程中出现错误: {str(e)}")
         return False
 
+def take_screenshot(input_video_path, output_image_path, timestamp='00:00:01'):
+    try:
+        (
+            ffmpeg
+            .input(input_video_path, ss=timestamp)
+            .output(output_image_path, vframes=1)
+            .overwrite_output()
+            .run()
+        )
+        print(f"已从 {input_video_path} 在时间 {timestamp} 处截取截图并保存到 {output_image_path}")
+        return True
+    except Exception as e:
+        print(f"截取截图时出现错误: {str(e)}")
+        return False
 
 
 def extract_audio_from_video_cmd(input_video_path, output_audio_path):
@@ -71,22 +86,6 @@ def extract_audio_from_video_cmd(input_video_path, output_audio_path):
     except FileNotFoundError:
         print("未找到 ffmpeg 可执行文件，请确保 ffmpeg 已正确安装并配置在系统路径中。")
         return False
-
-
-def take_screenshot(input_video_path, output_image_path, timestamp='00:00:01'):
-    try:
-        (
-            ffmpeg
-            .input(input_video_path, ss=timestamp)
-            .output(output_image_path, vframes=1)
-            .overwrite_output()
-            .run()
-        )
-        print(f"已从 {input_video_path} 在时间 {timestamp} 处截取截图并保存到 {output_image_path}")
-    except ffmpeg.Error as e:
-        print(f"截取截图时出现错误: {e.stderr.decode()}")
-
-
 
 
 def transcode_video(input_video_path, output_video_path, preset='fast', crf=23, audio_bitrate='128k',fps=30):

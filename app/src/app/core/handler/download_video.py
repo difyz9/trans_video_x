@@ -31,7 +31,6 @@ class DownloadVideo(BaseTaskHandler):
                 '--proxy','http://127.0.0.1:7890',
                 '--cookies-from-browser', 'chrome',
                 '--merge-output-format', 'mp4',
-                '--',
                 self.state_manager.video_id
             ]
 

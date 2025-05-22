@@ -11,6 +11,7 @@ class OrderModel(db.Model):
 
     id = db.Column(db.Text, primary_key=True)
     url = db.Column(db.Text, nullable=False)
+    videoId = db.Column(db.Text, nullable=False)
     title = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
     playlist_id = db.Column(db.Text, nullable=True) # Corresponds to playlistId
@@ -27,6 +28,7 @@ class OrderModel(db.Model):
         return {
             'id': self.id,
             'url': self.url,
+            'videoId':self.videoId,
             'title': self.title,
             'description': self.description,
             'playlistId': self.playlist_id,

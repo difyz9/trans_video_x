@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 from ..models import db # Assuming db is initialized in main.py or a shared models.py
 from sqlalchemy.exc import IntegrityError
 import datetime
+from app.models.order_model import OrderModel
+from ..utils.extract_url import extract_video_id
 
 # Define a Blueprint for the task API
 order_bp = Blueprint('url_bp', __name__)
@@ -37,6 +39,7 @@ def save_url_handler():
         new_url_task = OrderModel(
             id=data.get('id'),
             url=data.get('url'),
+            videoId = extract_video_id(data.get('url')), # Extract video ID from URL
             title=data.get('title'),
             description=data.get('description'),
             playlist_id=data.get('playlistId'),      # Map from camelCase

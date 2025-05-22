@@ -18,7 +18,7 @@ class TranslateSrtWithOllama(BaseTaskHandler):
         翻译字幕文本
         """
 
-        asyncio.run(process_srt_file(self.state_manager.original_srt,self.state_manager.translate_srt))
+        # asyncio.run(process_srt_file(self.state_manager.original_srt,self.state_manager.translate_srt))
         convert_srt_to_vtt(self.state_manager.original_srt, self.state_manager.original_vtt)
         convert_srt_to_vtt(self.state_manager.translate_srt, self.state_manager.translate_vtt)
 

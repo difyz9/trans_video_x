@@ -14,6 +14,7 @@ class TaskStateManager:
         self.session = session
         self.id = video.id if video else None
         self.video_id = video.videoId if video else None
+        self.video_url = video.url if video else None
         self.project_root = project_root
         self.task_id = getTimeStamp()
         self.mqtt_service = mqtt_service  # 添加 MQTT 服务引用
