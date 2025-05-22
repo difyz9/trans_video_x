@@ -80,12 +80,14 @@ flutter run
 - 提交前运行`flutter analyze`和`flutter test`
 - 更新相关文档
 
+## 📞 联系我
+[![QQ](https://img.shields.io/badge/QQ-1163196003-12b7f5?style=for-the-badge&logo=tencent-qq)](http://wpa.qq.com/msgrd?v=3&uin=1163196003&site=qq&menu=yes)  
 
 
 ### 微信交流群
 | 微信 |
 |  :---:  | 
-| <img width="200" src="./img/11747721498_.pic.jpg"> 
+| <img width="200" src="./img/31747879078_.pic.jpg"> 
 
 
 ## 📄 许可证
