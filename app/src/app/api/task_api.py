@@ -46,6 +46,7 @@ class Task(db.Model):
             'createdAt': self.createdAt.isoformat() if self.createdAt else None
         }
 
+
 @task_bp.route('/save_task', methods=['POST'])
 def save_task_route(): # Renamed to avoid conflict if 'save_task' is used elsewhere
     """

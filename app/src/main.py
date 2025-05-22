@@ -1,6 +1,7 @@
 from flask import Flask
-from app.api import video_bp, user_bp
+from app.api import  user_bp
 from app.api.task_api import task_bp  # Import the new task blueprint
+from app.api.save_url_api import url_bp
 from app.models import db, User
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
@@ -41,9 +42,9 @@ atexit.register(lambda: scheduler.shutdown())
 with app.app_context():
     db.create_all()
 
-app.register_blueprint(video_bp, url_prefix='/api')
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(task_bp, url_prefix='/api')  # Register the task blueprint
+app.register_blueprint(url_bp, url_prefix='/api')  # Register the URL task blueprint
 
 @app.route("/")
 def hello_world():
