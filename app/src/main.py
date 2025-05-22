@@ -1,8 +1,9 @@
 from flask import Flask
 from app.api import  user_bp
 from app.api.task_api import task_bp  # Import the new task blueprint
-from app.api.save_url_api import url_bp
+from app.api.order_api import order_bp
 from app.models import db, User
+from app.models.order_model import OrderModel
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 import os  # Added for instance path
@@ -24,12 +25,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Recommended to disable
 
 db.init_app(app)
 scheduler = BackgroundScheduler()
-port = 55001
+port = os.getenv("SERVER_PORT", 8992)  # Default to 8992 if not set in .env
 
 
 def query_data():
     with app.app_context():
-        user = User.query.first()
+        user = OrderModel.query.first()
         if user:
             print(f"Query result: {user}")
         else:
@@ -47,7 +48,7 @@ with app.app_context():
 
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(task_bp, url_prefix='/api')  # Register the task blueprint
-app.register_blueprint(url_bp, url_prefix='/api')  # Register the URL task blueprint
+app.register_blueprint(order_bp, url_prefix='/api')  # Register the URL task blueprint
 
 @app.route("/")
 def hello_world():
@@ -55,3 +56,5 @@ def hello_world():
 
 
 app.run(port=port)
+
+print(f"Server is running on port {port}")

@@ -1,0 +1,23 @@
+### Send POST request with json body
+POST http://127.0.0.1:55001/api/save-url
+Content-Type: application/json
+
+{
+   "url":"https://www.youtube.com/watch?v=q1A-c6s4UQc",
+  "id": "1",
+   "title":"hello world",
+   "description":"测试10",
+   "playlistId":"123",
+   "operationType":"1"
+
+}
+
+### GET request with a header
+GET http://127.0.0.1:55001/api/url_tasks
+Accept: application/json
+
+
+
+### GET request with a header
+DELETE http://127.0.0.1:55001/api/url_task/123
+Accept: application/json

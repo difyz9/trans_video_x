@@ -4,42 +4,11 @@ from sqlalchemy.exc import IntegrityError
 import datetime
 
 # Define a Blueprint for the task API
-url_bp = Blueprint('url_bp', __name__)
+order_bp = Blueprint('url_bp', __name__)
 
 
-class UrlTask(db.Model):
-    __tablename__ = 'url_tasks'
 
-    id = db.Column(db.Text, primary_key=True)
-    url = db.Column(db.Text, nullable=False)
-    title = db.Column(db.Text, nullable=True)
-    description = db.Column(db.Text, nullable=True)
-    playlist_id = db.Column(db.Text, nullable=True) # Corresponds to playlistId
-    operation_type = db.Column(db.Text, nullable=True) # Corresponds to operationType
-    timestamp = db.Column(db.DateTime, nullable=False) # Corresponds to timestamp, store as DateTime
-    status = db.Column(db.Text, nullable=True, default='pending') # Add a status field
-    processing_message = db.Column(db.Text, nullable=True) # For any messages during processing
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-
-    def __repr__(self):
-        return f'<UrlTask {self.id} - {self.url}>'
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'url': self.url,
-            'title': self.title,
-            'description': self.description,
-            'playlistId': self.playlist_id,
-            'operationType': self.operation_type,
-            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
-            'status': self.status,
-            'processingMessage': self.processing_message,
-            'createdAt': self.created_at.isoformat() if self.created_at else None
-        }
-
-
-@url_bp.route('/save-url', methods=['POST'])
+@order_bp.route('/save-url', methods=['POST'])
 def save_url_handler():
     if not request.is_json:
         return jsonify({"error": "Request must be JSON"}), 400
@@ -65,7 +34,7 @@ def save_url_handler():
             # 如果没有提供时间戳，使用当前时间
             parsed_timestamp = datetime.datetime.utcnow()
 
-        new_url_task = UrlTask(
+        new_url_task = OrderModel(
             id=data.get('id'),
             url=data.get('url'),
             title=data.get('title'),
@@ -94,21 +63,21 @@ def save_url_handler():
         print(f"Database error while saving UrlTask: {e}")
         return jsonify({"error": "Failed to save URL task to database", "details": str(e)}), 500
 
-@url_bp.route('/url_tasks', methods=['GET'])
+@order_bp.route('/url_tasks', methods=['GET'])
 def get_url_tasks_route():
     """API endpoint to retrieve a list of all URL tasks."""
     try:
-        url_tasks = UrlTask.query.all()
+        url_tasks = OrderModel.query.all()
         return jsonify([task.to_dict() for task in url_tasks]), 200
     except Exception as e:
         print(f"Error retrieving URL tasks: {e}")
         return jsonify({"error": "Failed to retrieve URL tasks", "details": str(e)}), 500
 
-@url_bp.route('/url_task/<string:task_id>', methods=['GET'])
+@order_bp.route('/url_task/<string:task_id>', methods=['GET'])
 def get_url_task_route(task_id):
     """API endpoint to retrieve a single URL task by its ID."""
     try:
-        url_task = UrlTask.query.get(task_id)
+        url_task = OrderModel.query.get(task_id)
         if url_task:
             return jsonify(url_task.to_dict()), 200
         else:
@@ -117,7 +86,7 @@ def get_url_task_route(task_id):
         print(f"Error retrieving URL task {task_id}: {e}")
         return jsonify({"error": "Failed to retrieve URL task", "details": str(e)}), 500
 
-@url_bp.route('/url_task/<string:task_id>', methods=['PUT'])
+@order_bp.route('/url_task/<string:task_id>', methods=['PUT'])
 def update_url_task_route(task_id):
     """API endpoint to update an existing URL task."""
     if not request.is_json:
@@ -127,7 +96,7 @@ def update_url_task_route(task_id):
     print(f"Received data for updating URL task {task_id}: {data}")
 
     try:
-        url_task = UrlTask.query.get(task_id)
+        url_task = OrderModel.query.get(task_id)
         if not url_task:
             return jsonify({"error": "URL task not found"}), 404
 
@@ -163,13 +132,13 @@ def update_url_task_route(task_id):
         print(f"Error updating URL task {task_id}: {e}")
         return jsonify({"error": "Failed to update URL task", "details": str(e)}), 500
 
-@url_bp.route('/url_task/<string:task_id>', methods=['DELETE'])
+@order_bp.route('/url_task/<string:task_id>', methods=['DELETE'])
 def delete_url_task_route(task_id):
     """API endpoint to delete a URL task."""
     try:
-        url_task = UrlTask.query.get(task_id)
+        url_task = OrderModel.query.get(task_id)
         if not url_task:
-            return jsonify({"error": "URL task not found"}), 404
+            return jsonify({"error": "URL task not 1 found"}), 404
 
         db.session.delete(url_task)
         db.session.commit()
