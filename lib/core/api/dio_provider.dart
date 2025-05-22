@@ -53,7 +53,16 @@ Map<String, dynamic> optHeader = {
     );
 
    
-
+dio.interceptors.add(InterceptorsWrapper(
+  onResponse:(response, handler) {
+    print("API Response for ${response.requestOptions.path}: ${response.data}");
+    return handler.next(response); // continue
+  },
+  onError: (DioException e, handler) {
+    print("API Error for ${e.requestOptions.path}: ${e.response?.data}");
+    return  handler.next(e); //continue
+  }
+));
   return dio;
 }
 

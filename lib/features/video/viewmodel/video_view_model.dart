@@ -10,23 +10,38 @@ final videoViewModelProvider =
 class VideoViewModel extends StateNotifier<AsyncValue<VideoListResponse>> {
   final Ref ref;
   int _currentPage = 1;
-  final int _pageSize = 12;
+  final int _pageSize = 8; // 减小页面大小，降低服务器负载
   bool _isLoadingMore = false;
+  bool _hasReachedEnd = false;
+  int _failedAttempts = 0;
+  static const int _maxRetryAttempts = 3;
 
   VideoViewModel(this.ref) : super(const AsyncValue.loading()) {
     fetchVideoList();
   }
 
   bool get isLoadingMore => _isLoadingMore;
+  bool get hasReachedEnd => _hasReachedEnd;
 
   Future<void> fetchVideoList() async {
     state = const AsyncValue.loading();
     try {
+      // 重置页码和终点状态
+      _currentPage = 1;
+      _hasReachedEnd = false;
+      _failedAttempts = 0;
+
       final repository = ref.read(videoServiceRepositoryProvider);
       final response = await repository.getVideoList(_currentPage, _pageSize);
-      print('Video list response: ${response.data}');
+
+      // 检查是否已经没有更多数据
+      if (response.data == null || response.data!.isEmpty || response.data!.length < _pageSize) {
+        _hasReachedEnd = true;
+      }
+
       state = AsyncValue.data(response);
     } catch (e) {
+      print('Error fetching video list: $e');
       state = AsyncValue.error(e, StackTrace.current);
     }
   }
@@ -46,7 +61,13 @@ class VideoViewModel extends StateNotifier<AsyncValue<VideoListResponse>> {
   }
 
   Future<void> loadMoreVideos() async {
-    if (_isLoadingMore) return;
+    if (_isLoadingMore || _hasReachedEnd) return;
+    if (_failedAttempts >= _maxRetryAttempts) {
+      print('达到最大重试次数，不再尝试加载更多内容');
+      _hasReachedEnd = true;
+      state = state;
+      return;
+    }
 
     _isLoadingMore = true;
     // Update the current state to trigger a rebuild without changing the data
@@ -57,13 +78,20 @@ class VideoViewModel extends StateNotifier<AsyncValue<VideoListResponse>> {
       final repository = ref.read(videoServiceRepositoryProvider);
       final newResponse = await repository.getVideoList(_currentPage + 1, _pageSize);
 
-      if (newResponse.data!.isEmpty) {
+      if (newResponse.data == null || newResponse.data!.isEmpty) {
+        _hasReachedEnd = true;
         _isLoadingMore = false;
         state = state; // Update again to reflect loading state change
         return;
       }
 
+      // 如果返回的数据少于页大小，说明已经到达末尾
+      if (newResponse.data!.length < _pageSize) {
+        _hasReachedEnd = true;
+      }
+
       _currentPage++;
+      _failedAttempts = 0; // 成功加载后重置失败计数
 
       state.whenData((currentResponse) {
         final updatedList = [
@@ -75,7 +103,13 @@ class VideoViewModel extends StateNotifier<AsyncValue<VideoListResponse>> {
         state = AsyncValue.data(updatedResponse);
       });
     } catch (e) {
-      print('Error loading more videos: $e');
+      _failedAttempts++;
+      print('Error loading more videos (attempt $_failedAttempts/$_maxRetryAttempts): $e');
+      
+      // 如果在最后一次尝试后仍然失败，标记为已到达末尾
+      if (_failedAttempts >= _maxRetryAttempts) {
+        _hasReachedEnd = true;
+      }
     } finally {
       _isLoadingMore = false;
       state = state; // Update again to reflect loading state change

@@ -36,6 +36,8 @@ class AppRouter extends RootStackRouter {
         CustomFadeRoute(page: VideoListRoute.page, path: VideoListRoute.name),
       ],
     ),
+    AutoRoute(page: PlaymediaRoute.page, path: "/playmedia"),
+    
   ];
 }
 

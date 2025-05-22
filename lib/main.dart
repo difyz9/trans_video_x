@@ -11,8 +11,10 @@ import 'package:trans_video_x/core/hive/hive_init.dart';
 import 'package:trans_video_x/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trans_video_x/core/constants/app_config.dart';
+import 'package:media_kit/media_kit.dart';
 
-
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show Platform;
 
 
 
@@ -25,7 +27,12 @@ void main() async {
 
   // 初始化Hive和注册适配器
   await initHive();
+  if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+          MediaKit.ensureInitialized();
 
+
+  }
+    
     // final prefs = await SharedPreferences.getInstance();
 
   // 初始化腾讯云 COS 服务

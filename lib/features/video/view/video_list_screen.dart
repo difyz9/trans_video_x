@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'dart:async'; // Add this import for Timer
 import 'package:trans_video_x/features/video/viewmodel/video_view_model.dart';
 import 'package:trans_video_x/core/layout/view/left_screen.dart';
+import 'package:trans_video_x/routes/app_route.gr.dart';
 
 @RoutePage()
 class VideoListScreen extends ConsumerStatefulWidget {
@@ -530,10 +531,10 @@ Future<void> _batchUpdateVideoStatus(
                                 } else {
 
                                   // todo: 这里需要跳转到视频播放页面
-                                  // context.router.push(
-                                  //   // YoutubePlayRoute(videoId: video.videoId,currendId: video.id,status: video.status),
-                                  //   // PlaymediaRoute(videoId: video.videoId),
-                                  // );
+                                  context.router.push(
+                                    // YoutubePlayRoute(videoId: video.videoId,currendId: video.id,status: video.status),
+                                    PlaymediaRoute(videoId: video.videoId),
+                                  );
                                 }
                               },
                               // 添加长按进入选择模式的功能
