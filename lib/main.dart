@@ -7,7 +7,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:trans_video_x/core/layout/provider/layout_provider.dart';
 import 'package:trans_video_x/routes/app_route.dart';
-import 'package:trans_video_x/core/hive/hive_init.dart';
 import 'package:trans_video_x/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trans_video_x/core/constants/app_config.dart';
@@ -30,7 +29,6 @@ void main() async {
 
 
   // 初始化Hive和注册适配器
-  await initHive();
   if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
           MediaKit.ensureInitialized();
 

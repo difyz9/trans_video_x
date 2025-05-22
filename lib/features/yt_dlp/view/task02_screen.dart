@@ -1,15 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:trans_video_x/models/add_url_model.dart';
-import 'package:trans_video_x/core/constants/app_constants.dart';
 import 'package:trans_video_x/features/task/model/task_status.dart';
 import 'package:trans_video_x/features/task/provider/task_provider.dart';
-// import 'package:trans_video_x/core/widget/task_status_indicator.dart'; // Assuming TaskStatusOverview is not used here or defined elsewhere
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-// The original Task class is removed as we are now using AddUrlModel
+const String ytDlpApiBaseUrl = 'http://127.0.0.1:55001/api';
 
 @RoutePage()
 class Task02Screen extends ConsumerStatefulWidget {
@@ -22,10 +21,9 @@ class Task02Screen extends ConsumerStatefulWidget {
 class _Task02ScreenState extends ConsumerState<Task02Screen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late Box<AddUrlModel> _urlBox;
-  bool _isLoading = true;
+  List<AddUrlModel> _allUrlTasks = [];
+  bool _isFetchingTasks = true;
 
-  // Audio and frames upload endpoints (consider moving to a config file)
   static const String audioUploadEndpoint = 'https://api.example.com/audio';
   static const String framesUploadEndpoint = 'https://api.example.com/frames';
 
@@ -34,72 +32,84 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this); // "全部", "处理中", "已完成", "失败"
+    _tabController = TabController(length: 4, vsync: this);
     _taskStatusNotifier = ref.read(taskStatusProvider.notifier);
-    _openBox();
+    _fetchTasksAndInitiateProcessing();
   }
 
-  Future<void> _openBox() async {
+  Future<void> _fetchTasksAndInitiateProcessing() async {
+    if (!mounted) return;
+    setState(() {
+      _isFetchingTasks = true;
+    });
+
     try {
-      _urlBox = await Hive.openBox<AddUrlModel>(AppConstants.addUrlModelBoxName);
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        _startProcessingUrls();
+      final response = await http.get(Uri.parse('$ytDlpApiBaseUrl/url_tasks'));
+      if (response.statusCode == 200) {
+        final List<dynamic> taskData = jsonDecode(response.body);
+        if (mounted) {
+          setState(() {
+            _allUrlTasks = taskData.map((data) => AddUrlModel.fromJson(data)).toList();
+            _isFetchingTasks = false;
+          });
+          _initiateProcessingOfFetchedTasks();
+        }
+      } else {
+        throw Exception('Failed to load URL tasks: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error opening Hive box: $e');
+      print('Error fetching URL tasks: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading data: ${e.toString()}')),
+          SnackBar(content: Text('Error loading tasks: ${e.toString()}')),
         );
         setState(() {
-          _isLoading = false;
+          _isFetchingTasks = false;
         });
       }
     }
   }
 
-  void _startProcessingUrls() {
-    if (_isLoading) return; // Don't process if box isn't open
+  void _initiateProcessingOfFetchedTasks() {
+    if (_isFetchingTasks || !mounted) return;
 
     final taskNotifier = _taskStatusNotifier;
-    ref.read(isPollingProvider.notifier).state = false; // Reset polling state initially
+    bool currentlyPolling = ref.read(isPollingProvider);
 
-    if (_urlBox.isEmpty) {
-      print('No URLs found in Task02Screen. Starting polling for new URLs...');
-      ref.read(isPollingProvider.notifier).state = true;
-      taskNotifier.startPolling(
-        urlBox: _urlBox,
-        audioUploadEndpoint: audioUploadEndpoint,
-        framesUploadEndpoint: framesUploadEndpoint,
-      );
+    if (_allUrlTasks.isEmpty) {
+      print('No URLs found from API. Starting API polling for new URLs...');
+      if (!currentlyPolling) {
+        ref.read(isPollingProvider.notifier).state = true;
+      }
     } else {
-      print('Found ${_urlBox.length} URLs in Task02Screen. Starting processing...');
-      taskNotifier.checkAndProcessPendingUrls(
-        urlBox: _urlBox,
-        audioUploadEndpoint: audioUploadEndpoint,
-        framesUploadEndpoint: framesUploadEndpoint,
-      );
+      print('Found ${_allUrlTasks.length} URLs from API. Checking for pending tasks...');
+      for (var task in _allUrlTasks) {
+        final statusState = ref.read(taskStatusProvider)[task.id];
+        if (statusState == null || statusState.status == TaskStatus.pending || statusState.status == TaskStatus.error) {
+          print("Initiating processing for task: ${task.title ?? task.id}");
+          taskNotifier.processUrl(
+            task,
+            audioUploadEndpoint: audioUploadEndpoint,
+            framesUploadEndpoint: framesUploadEndpoint,
+          );
+        }
+      }
     }
     if (mounted) {
-      setState(() {}); // Refresh UI, especially tab counts
+      setState(() {});
     }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _taskStatusNotifier.stopPolling();
-    // _urlBox.close(); // Consider if box should be closed here or managed globally
     super.dispose();
   }
 
   List<AddUrlModel> _getFilteredTasks(String statusCategory) {
-    if (_isLoading || !_urlBox.isOpen) return [];
+    if (_isFetchingTasks) return [];
 
-    final allModels = _urlBox.values.toList().reversed.toList(); // Show newest first
+    final allModels = List<AddUrlModel>.from(_allUrlTasks).reversed.toList();
     final taskStatuses = ref.watch(taskStatusProvider);
 
     if (statusCategory == '全部') {
@@ -109,8 +119,7 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
     return allModels.where((model) {
       final statusState = model.id != null ? taskStatuses[model.id] : null;
       if (statusState == null) {
-        // Treat as pending if no status yet, or decide how to categorize
-        return statusCategory == '处理中'; // Example: put items without status in "处理中"
+        return statusCategory == '处理中';
       }
       switch (statusCategory) {
         case '处理中':
@@ -125,21 +134,20 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
     }).toList();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    if (_isFetchingTasks) {
       return Scaffold(
+        appBar: AppBar(title: const Text("URL任务处理")),
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    // Watch providers that affect tab counts or list content
     ref.watch(taskStatusProvider);
     ref.watch(isPollingProvider);
 
-
     return Scaffold(
+      appBar: AppBar(title: const Text("URL任务处理")),
       body: _buildBody001(),
     );
   }
@@ -156,22 +164,15 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
           }).toList(),
         ),
         Expanded(
-          child: Stack( // Added Stack widget
+          child: Stack(
             children: [
-              ValueListenableBuilder(
-                valueListenable: _urlBox.listenable(),
-                builder: (context, Box<AddUrlModel> box, _) {
-                  // Rebuild TabBarView children when box changes or task statuses change
-                  // The taskStatusProvider is watched in the main build method, triggering rebuilds
-                  return TabBarView(
-                    controller: _tabController,
-                    children: tabTitles.map((title) {
-                      return _buildTaskList(_getFilteredTasks(title));
-                    }).toList(),
-                  );
-                }
+              TabBarView(
+                controller: _tabController,
+                children: tabTitles.map((title) {
+                  return _buildTaskList(_getFilteredTasks(title));
+                }).toList(),
               ),
-              Positioned( // Added Positioned widget for buttons
+              Positioned(
                 top: 8.0,
                 right: 8.0,
                 child: Row(
@@ -179,13 +180,12 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
                     IconButton(
                       icon: const Icon(Icons.refresh),
                       onPressed: () {
-                        _startProcessingUrls();
+                        _fetchTasksAndInitiateProcessing();
                       },
                     ),
                     IconButton(
                       icon: const Icon(Icons.filter_list),
                       onPressed: () {
-                        // TODO: Implement filter functionality
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Filter button pressed')),
                         );
@@ -209,42 +209,35 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text('没有任务'),
-            if (isPolling && _urlBox.isEmpty) ...[ // Show polling message if box is empty and polling
-               const SizedBox(height: 16),
-               const SizedBox(width: 24, height: 24, child: CircularProgressIndicator()),
-               const SizedBox(height: 8),
-               const Text('正在等待新的URL数据...'),
-            ] else if (!_urlBox.isOpen || _urlBox.isEmpty) ... [ // Offer to start polling if box is empty and not polling
+            if (isPolling && _allUrlTasks.isEmpty) ...[
+              const SizedBox(height: 16),
+              const SizedBox(width: 24, height: 24, child: CircularProgressIndicator()),
+              const SizedBox(height: 8),
+              const Text('正在等待新的URL数据 (API)...'),
+            ] else if (_allUrlTasks.isEmpty) ...[
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  ref.read(isPollingProvider.notifier).state = true;
-                   _taskStatusNotifier.startPolling(
-                    urlBox: _urlBox,
-                    audioUploadEndpoint: audioUploadEndpoint,
-                    framesUploadEndpoint: framesUploadEndpoint,
-                  );
+                  _fetchTasksAndInitiateProcessing();
                 },
-                child: const Text('开始轮询新任务'),
+                child: const Text('刷新任务列表'),
               ),
             ]
           ],
-        )
+        ),
       );
     }
     return ListView.builder(
       padding: const EdgeInsets.all(8.0),
       itemCount: tasks.length,
       itemBuilder: (context, index) {
-        // Find the original index in the box for deletion, as tasks list is filtered and reversed
         final urlVo = tasks[index];
-        final originalBoxIndex = _urlBox.values.toList().indexWhere((item) => item.id == urlVo.id);
-        return _buildTaskItem(urlVo, originalBoxIndex);
+        return _buildTaskItem(urlVo);
       },
     );
   }
 
-  Widget _buildTaskItem(AddUrlModel urlVo, int originalBoxIndex) {
+  Widget _buildTaskItem(AddUrlModel urlVo) {
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
     final formattedDate = dateFormat.format(urlVo.timestamp);
     final taskStatuses = ref.watch(taskStatusProvider);
@@ -279,11 +272,10 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
           break;
       }
     } else {
-        statusText = "等待处理"; // Default for items not yet in taskStatusProvider
-        statusColor = Colors.grey.shade100;
-        statusTextColor = Colors.grey.shade800;
+      statusText = "等待处理";
+      statusColor = Colors.grey.shade100;
+      statusTextColor = Colors.grey.shade800;
     }
-
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -334,13 +326,12 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
                   const SizedBox(width: 4),
                   Text('添加时间: $formattedDate', style: TextStyle(color: Colors.grey.shade600)),
                   const Spacer(),
-                   if (originalBoxIndex != -1) // Ensure item is found in box before showing delete
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red.shade300),
-                      onPressed: () => _deleteUrlByModel(urlVo), // Use model for safer deletion
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
-                    )
+                  IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red.shade300),
+                    onPressed: () => _deleteUrlByModel(urlVo),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                  )
                 ],
               ),
               if (taskStatusState != null && taskStatusState.message != null && taskStatusState.message!.isNotEmpty) ...[
@@ -367,42 +358,10 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
     );
   }
 
-  // Helper to build status badge, similar to TaskScreen
-  Widget _buildStatusBadge(TaskStatus status) {
-    // This is now integrated into _buildTaskItem's status display logic
-    // but can be extracted if needed elsewhere.
-    // For now, the logic in _buildTaskItem handles this.
-    // If you need a standalone badge, you can adapt the logic from TaskScreen's _buildStatusBadge.
-    // Example:
-    Color color;
-    String text = status.name;
-    switch (status) {
-      case TaskStatus.pending: color = Colors.grey; break;
-      case TaskStatus.downloading: color = Colors.blue; break;
-      case TaskStatus.extractingFrames: color = Colors.indigo; break;
-      case TaskStatus.extractingAudio: color = Colors.purple; break;
-      case TaskStatus.uploadingAudio: color = Colors.orange; break;
-      case TaskStatus.uploadingFrames: color = Colors.deepOrange; break;
-      case TaskStatus.completed: color = Colors.green; break;
-      case TaskStatus.error: color = Colors.red; break;
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
-      child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 12)),
-    );
-  }
-
   void _deleteUrlByModel(AddUrlModel urlVoToDelete) {
-    // Find the item in the box by its unique ID to ensure correct deletion
-    final boxKey = _urlBox.keys.firstWhere((key) {
-      final item = _urlBox.get(key);
-      return item?.id == urlVoToDelete.id;
-    }, orElse: () => null);
-
-    if (boxKey == null) {
+    if (urlVoToDelete.id == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('错误：无法找到要删除的任务')),
+        const SnackBar(content: Text('错误：任务ID缺失，无法删除')),
       );
       return;
     }
@@ -418,18 +377,34 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
             child: const Text('取消'),
           ),
           TextButton(
-            onPressed: () {
-              _urlBox.delete(boxKey);
-              // Optionally, remove from taskStatusProvider if it holds state for deleted items
-              if (urlVoToDelete.id != null) {
-                ref.read(taskStatusProvider.notifier).removeStatus(urlVoToDelete.id!);
-              }
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('任务已删除')),
-              );
-              // setState to refresh counts, ValueListenableBuilder will handle list update
-              if(mounted) setState(() {});
+              try {
+                final response = await http.delete(
+                  Uri.parse('$ytDlpApiBaseUrl/url_task/${urlVoToDelete.id}')
+                );
+                if (response.statusCode == 200 || response.statusCode == 204) {
+                  if (mounted) {
+                    setState(() {
+                      _allUrlTasks.removeWhere((task) => task.id == urlVoToDelete.id);
+                    });
+                    if (urlVoToDelete.id != null) {
+                      ref.read(taskStatusProvider.notifier).removeStatus(urlVoToDelete.id!);
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('任务已删除')),
+                    );
+                  }
+                } else {
+                  throw Exception('Failed to delete task: ${response.statusCode}');
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('删除失败: ${e.toString()}')),
+                  );
+                }
+              }
             },
             child: const Text('删除', style: TextStyle(color: Colors.red)),
           ),
@@ -438,20 +413,19 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
     );
   }
 
-
   void _showUrlDetails(AddUrlModel urlVo) {
     final BuildContext currentContext = context;
     showDialog(
       context: currentContext,
       builder: (dialogContext) {
-        return Consumer( // Use Consumer to get latest task status in dialog
+        return Consumer(
           builder: (context, ref, child) {
             final taskStatuses = ref.watch(taskStatusProvider);
             final taskStatusState = urlVo.id != null ? taskStatuses[urlVo.id] : null;
 
             return AlertDialog(
               title: const Text('任务详情'),
-              content: SingleChildScrollView( // Ensure content is scrollable
+              content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -470,7 +444,7 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
                       Row(
                         children: [
                           const Text('处理状态: ', style: TextStyle(fontWeight: FontWeight.bold)),
-                          _buildStatusBadge(taskStatusState.status), // Use the helper here
+                          _buildStatusBadge(taskStatusState.status),
                         ],
                       ),
                       if (taskStatusState.message != null && taskStatusState.message!.isNotEmpty)
@@ -494,7 +468,7 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
                         framesUploadEndpoint: framesUploadEndpoint,
                       );
                       Navigator.pop(dialogContext);
-                       ScaffoldMessenger.of(context).showSnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('开始处理 "${urlVo.title ?? urlVo.url}"')),
                       );
                     },
@@ -522,6 +496,42 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
           Expanded(child: Text(value)),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatusBadge(TaskStatus status) {
+    Color color;
+    String text = status.name;
+    switch (status) {
+      case TaskStatus.pending:
+        color = Colors.grey;
+        break;
+      case TaskStatus.downloading:
+        color = Colors.blue;
+        break;
+      case TaskStatus.extractingFrames:
+        color = Colors.indigo;
+        break;
+      case TaskStatus.extractingAudio:
+        color = Colors.purple;
+        break;
+      case TaskStatus.uploadingAudio:
+        color = Colors.orange;
+        break;
+      case TaskStatus.uploadingFrames:
+        color = Colors.deepOrange;
+        break;
+      case TaskStatus.completed:
+        color = Colors.green;
+        break;
+      case TaskStatus.error:
+        color = Colors.red;
+        break;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 12)),
     );
   }
 }

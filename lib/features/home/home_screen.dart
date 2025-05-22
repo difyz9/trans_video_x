@@ -4,13 +4,15 @@ import 'package:auto_route/auto_route.dart';
 import 'package:trans_video_x/core/cos/providers/cos_providers.dart';
 import 'package:trans_video_x/core/utils/file_utils.dart';
 import 'package:trans_video_x/core/widget/file_drop_screen.dart';
-import 'package:intl/intl.dart'; // Added for DateFormat
-import 'package:hive_flutter/hive_flutter.dart'; // For Hive
-import 'package:trans_video_x/models/task_model.dart';
+import 'package:intl/intl.dart';
+import 'package:trans_video_x/models/task_model.dart'; // Keep TaskModel for structure
 import 'package:trans_video_x/routes/app_route.gr.dart';
-import 'package:uuid/uuid.dart'; // Adjust the path as needed
+import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http; // Added for HTTP requests
+import 'dart:convert'; // Added for jsonEncode
 
-const String tasksBoxName = 'tasksBox'; // Hive box name
+// TODO: Configure your API base URL
+const String apiBaseUrl = 'http://127.0.0.1:55001/api'; // Example: 'http://localhost:5001/api' or your server IP
 
 @RoutePage()
 class HomeScreen extends ConsumerStatefulWidget {
@@ -25,29 +27,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _selectedTargetLanguage = '中文';
 
   // Unified list for all tasks, including initial ones and newly added ones.
-  List<Map<String, dynamic>> _allTasks = [
- 
-  ];
+  List<Map<String, dynamic>> _allTasks = [];
+  final Uuid _uuid = Uuid(); // UUID generator
 
   @override
   void initState() {
     super.initState();
     // Initialize _allTasks if needed from persistence or other sources in the future
+    // If you want to load tasks from the API on init, you can do it here.
   }
 
   void _handleFilesSelected(List<Map<String, dynamic>> selectedFilesData) {
     final newTasks = selectedFilesData.map((fileData) {
       return {
+        'id': _uuid.v4(), // Generate ID upfront for API consistency
         'name': fileData['name'] as String,
         'path': fileData['path'] as String,
         'size': fileData['size'] as int, // From FileDropWidget
         'formattedSize': fileData['formattedSize'] as String, // From FileDropWidget
         'type': fileData['type'] as String, // From FileDropWidget
-        'time': DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
+        'time': DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()), // UI display time
+        'uploadTime': DateTime.now().toIso8601String(), // For API
         'source': _selectedSourceLanguage,
         'target': _selectedTargetLanguage,
         'status': '待处理', // New status for pending tasks
         'error': null, // For storing error messages
+        'cosObjectKey': null, // Will be set after upload
       };
     }).toList();
 
@@ -57,7 +62,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _startSingleTask(Map<String, dynamic> task) async {
-    final cosNotifier = ref.read(cosOperationProvider.notifier); // Get the COS notifier
+    final cosNotifier = ref.read(cosOperationProvider.notifier);
     final String? localFilePath = task['path'] as String?;
     final String originalFileName = task['name'] as String;
 
@@ -72,57 +77,74 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return;
     }
 
-    // Generate a timestamp-based key for COS
     final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final String? fileHash = await FileUtils.instance.getFileHashKey(localFilePath); // Await the hash
-
+    final String? fileHash = await FileUtils.instance.getFileHashKey(localFilePath);
     final String fileName = fileHash?.substring(0, 10) ?? timestamp;
-
     final String fileExtension = originalFileName.contains('.') ? originalFileName.substring(originalFileName.lastIndexOf('.')) : '';
-    final String cosObjectKey = 'uploads/$fileName/$fileName$fileExtension'; // Example: uploads/1678886400000.mp4
-
-
+    final String cosObjectKey = 'uploads/$fileName/$fileName$fileExtension';
 
     try {
       if (mounted) {
         setState(() {
           task['status'] = '上传中...';
-          task['error'] = null; // Clear previous error
+          task['error'] = null;
         });
       }
 
-      // Corrected: Use objectKey for the COS path
       await cosNotifier.uploadFile(filePath: localFilePath, objectKey: cosObjectKey);
       print('Successfully uploaded $originalFileName as $cosObjectKey.');
+      task['cosObjectKey'] = cosObjectKey; // Update cosObjectKey in the local task map
 
-      // Store in Hive after successful upload
+      // Data to be sent to the API
+      final apiTaskData = TaskModel(
+        id: task['id'] as String, // Use the pre-generated ID
+        cosObjectKey: cosObjectKey,
+        name: task['name'] as String,
+        path: task['path'] as String? ?? '',
+        size: task['size'] as int,
+        formattedSize: task['formattedSize'] as String,
+        type: task['type'] as String,
+        uploadTime: task['uploadTime'] as String, // Already in ISO8601String
+        sourceLanguage: task['source'] as String,
+        targetLanguage: task['target'] as String,
+        status: '已上传待处理', // Status after successful upload
+        // errorMessage will be null initially
+      );
+
+      // Send data to Flask API
       try {
-        final box = await Hive.openBox<TaskModel>(tasksBoxName);
-        final taskToStore = TaskModel(
-          id: Uuid().v4(), // Use a new UUID as a unique ID
-          cosObjectKey: cosObjectKey,
-          name: task['name'] as String,
-          path: task['path'] as String? ?? '',
-          size: task['size'] as int,
-          formattedSize: task['formattedSize'] as String,
-          type: task['type'] as String,
-          uploadTime: DateTime.now().toIso8601String(),
-          sourceLanguage: task['source'] as String,
-          targetLanguage: task['target'] as String,
-          status: '已上传待处理', // Status indicating successful upload, awaiting backend
+        final response = await http.post(
+          Uri.parse('$apiBaseUrl/save_task'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(apiTaskData.toJson()), // Assuming TaskModel has toJson()
         );
-        await box.put(taskToStore.id, taskToStore);
-        print('Task $originalFileName data stored in Hive with key: ${taskToStore.id}');
-      } catch (hiveError) {
-        print('Failed to store task $originalFileName in Hive: $hiveError');
+
+        if (response.statusCode == 201) {
+          print('Task $originalFileName data successfully sent to API.');
+          if (mounted) {
+            setState(() {
+              task['status'] = '处理中'; // API confirmed, backend processing starts
+            });
+          }
+        } else {
+          print('Failed to send task $originalFileName to API: ${response.statusCode} ${response.body}');
+          if (mounted) {
+            setState(() {
+              task['status'] = 'API同步失败';
+              task['error'] = 'API Error: ${response.statusCode}';
+            });
+          }
+        }
+      } catch (e) {
+        print('Error sending task $originalFileName to API: $e');
+        if (mounted) {
+          setState(() {
+            task['status'] = 'API连接失败';
+            task['error'] = e.toString();
+          });
+        }
       }
 
-      if (mounted) {
-        setState(() {
-          task['status'] = '处理中'; // Indicates upload success, ready for backend
-          task['cosObjectKey'] = cosObjectKey; // Store cosObjectKey in the UI task map
-        });
-      }
     } catch (e) {
       print('Failed to upload task $originalFileName: $e');
       if (mounted) {
@@ -218,8 +240,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            // const Text('上传视频文件开始翻译', style: TextStyle(fontSize: 14, color: Colors.grey)),
-            // const SizedBox(height: 24),
 
             // Language Selection Row
             Row(
@@ -306,10 +326,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-                TextButton(onPressed: (){
-                  AutoRouter.of(context).push(const HistoryRoute());
-                }, child: const Text("历史记录"))
-               
+                TextButton(
+                  onPressed: () {
+                    AutoRouter.of(context).push(const HistoryRoute());
+                  },
+                  child: const Text("历史记录"),
+                )
               ],
             ),
 
@@ -335,8 +357,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   DataColumn(label: Padding(padding: EdgeInsets.symmetric(horizontal: 8.0), child: Text('操作', style: TextStyle(fontWeight: FontWeight.bold)))),
                 ],
                 rows: _allTasks.map((task) {
-                  final String currentTaskCosKey = task['cosObjectKey'] as String? ?? (task['name']! as String);
-
                   return DataRow(cells: [
                     DataCell(Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), child: Text(task['name']! as String))),
                     DataCell(Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), child: Text(task['time']! as String))),
@@ -346,32 +366,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                         child: Chip(
-                          label: Text(task['status']! as String),
-                          backgroundColor: task['status'] == '已完成'
-                              ? Colors.green.shade100
-                              : task['status'] == '处理中'
-                                  ? Colors.orange.shade100
-                                  : task['status'] == '待处理'
-                                      ? Colors.blue.shade100
-                                      : task['status'] == '上传中...'
-                                          ? Colors.purple.shade100
-                                          : task['status'] == '上传失败'
-                                              ? Colors.red.shade100
-                                              : Colors.grey.shade100,
-                          labelStyle: TextStyle(
-                            color: task['status'] == '已完成'
-                                ? Colors.green.shade800
-                                : task['status'] == '处理中'
-                                    ? Colors.orange.shade800
-                                    : task['status'] == '待处理'
-                                        ? Colors.blue.shade800
-                                        : task['status'] == '上传中...'
-                                            ? Colors.purple.shade800
-                                            : task['status'] == '上传失败'
-                                                ? Colors.red.shade800
-                                                : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          label: Text(task['status']! as String), // Display status
+                          backgroundColor: task['error'] != null
+                              ? Colors.red[100]
+                              : (task['status'] == '处理中' || task['status'] == '上传中...' ? Colors.blue[100] : Colors.green[100]),
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         ),
                       ),
@@ -379,55 +377,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     DataCell(
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                        child: task['status'] == '待处理' || task['status'] == '上传失败'
-                            ? ElevatedButton.icon(
-                                icon: Icon(task['status'] == '上传失败' ? Icons.refresh : Icons.play_arrow),
-                                label: Text(task['status'] == '上传失败' ? '重试' : '开始任务'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: task['status'] == '上传失败' ? Colors.orange : Colors.green,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  textStyle: const TextStyle(fontSize: 12),
-                                ),
+                        child: task['status'] == '待处理'
+                            ? ElevatedButton(
+                                child: const Text('开始'),
                                 onPressed: () => _startSingleTask(task),
                               )
-                            : (task['status'] == '上传中...')
-                                ? const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2)),
-                                      SizedBox(width: 8),
-                                      Text("上传中...", style: TextStyle(fontSize: 12)),
-                                    ],
-                                  )
-                                : Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (task['status'] == '已完成')
-                                        IconButton(
-                                            icon: const Icon(Icons.download_outlined, color: Colors.blue),
-                                            onPressed: () {
-                                              print('Download: ${task['name']}');
-                                            }),
-                                      IconButton(
-                                          icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                          onPressed: () async {
-                                            print('Delete: ${task['name']}');
-                                            if (task['cosObjectKey'] != null) {
-                                              try {
-                                                final box = await Hive.openBox<TaskModel>(tasksBoxName);
-                                                await box.delete(task['cosObjectKey']);
-                                                print('Task ${task['name']} removed from Hive.');
-                                              } catch (hiveError) {
-                                                print('Failed to remove task ${task['name']} from Hive: $hiveError');
-                                              }
-                                            }
-                                            setState(() {
-                                              _allTasks.remove(task);
-                                            });
-                                          }),
-                                    ],
-                                  ),
+                            : (task['error'] != null
+                                ? Tooltip(message: task['error'] as String, child: Icon(Icons.error, color: Colors.red))
+                                : (task['status'] == '上传中...' || task['status'] == '处理中'
+                                    ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                                    : Icon(Icons.check_circle, color: Colors.green))),
                       ),
                     ),
                   ]);
