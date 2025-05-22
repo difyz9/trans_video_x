@@ -4,7 +4,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:trans_video_x/models/add_url_model.dart';
 import '../model/task_status.dart';
 import '../handler/video_processing_client.dart';
-import '../handler/task_state_manager.dart';
 
 // Tracks all URL processing tasks
 final taskStatusProvider = StateNotifierProvider<TaskStatusNotifier, Map<String, VideoTaskStatus>>((ref) {
@@ -31,6 +30,11 @@ class TaskStatusNotifier extends StateNotifier<Map<String, VideoTaskStatus>> {
               message: message,
             ),
     };
+  }
+
+  // Removes task status for a specific URL
+  void removeStatus(String urlId) {
+    state = Map.from(state)..remove(urlId);
   }
 
   // Process a single URL

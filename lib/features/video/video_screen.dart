@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:trans_video_x/features/task/view/task02_screen.dart';
 import 'package:trans_video_x/features/video/view/info_screen.dart';
 import 'package:trans_video_x/features/video/view/youtube_page.dart';
 import 'package:trans_video_x/features/config/view/config_screen.dart';
@@ -61,7 +62,7 @@ late TabController _tabController;
               child: ConfigScreen(),
             ),
           ),
-          const InfoScreen(),
+          const Task02Screen(),
         ],
       ),
     );
