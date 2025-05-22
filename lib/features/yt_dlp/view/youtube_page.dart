@@ -17,6 +17,7 @@ import 'package:trans_video_x/features/yt_dlp/widgets/youtube_opcao_download.dar
 import 'package:trans_video_x/features/yt_dlp/widgets/youtube_video_preview.dart';
 import 'package:trans_video_x/core/constants/app_config.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'dart:io' show Platform;
 
 // YoutubePage是一个有状态的小部件，用于显示YouTube下载器页面
 
@@ -72,9 +73,11 @@ class _YoutubePageState extends State<YoutubePage> {
   @override
   void initState() {
     super.initState();
+    
     // 初始化时检查依赖项
-    verificarDependencias();
-  }
+  if (Platform.isWindows || Platform.isLinux) {
+      verificarDependencias();
+    }  }
 
   // 检查ffmpeg和ffprobe依赖项是否已安装
   void verificarDependencias() async {

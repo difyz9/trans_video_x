@@ -12,13 +12,17 @@ import 'package:trans_video_x/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trans_video_x/core/constants/app_config.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:serious_python/serious_python.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
 
-
+void startPython() async {
+  SeriousPython.run("app/app.zip", environmentVariables: {"a": "1", "b": "2"});
+}
 
 void main() async {
+  startPython();
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: '.env');
@@ -32,6 +36,8 @@ void main() async {
 
 
   }
+
+
     
     // final prefs = await SharedPreferences.getInstance();
 
