@@ -15,6 +15,24 @@
 *.zip
 *.tar.gz
 *.mp4
+app/
+
+# IDE和编辑器
+.idea/
+.vscode/
+*.code-workspace
+
+# Python缓存和编译文件
+__pycache__/
+*.py[cod]
+*.pyd
+
+# 虚拟环境
+venv/
+env/
+.venv/
+pipenv/
+.conda/
 
 # Flutter repo-specific
 /bin/cache/
