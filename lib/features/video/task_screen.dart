@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:trans_video_x/features/task/view/task02_screen.dart';
+import 'package:trans_video_x/features/video/view/task02_screen.dart';
 import 'package:trans_video_x/features/video/view/info_screen.dart';
 import 'package:trans_video_x/features/video/view/youtube_page.dart';
 import 'package:trans_video_x/features/config/view/config_screen.dart';
@@ -9,14 +9,14 @@ import 'package:trans_video_x/features/config/view/config_screen.dart';
 
 @RoutePage()
 
-class VideoScreen extends ConsumerStatefulWidget {
-  const VideoScreen({super.key});
+class TaskScreen extends ConsumerStatefulWidget {
+  const TaskScreen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _VideoScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _TaskScreenState();
 }
 
-class _VideoScreenState extends ConsumerState<VideoScreen>  with TickerProviderStateMixin {
+class _TaskScreenState extends ConsumerState<TaskScreen>  with TickerProviderStateMixin {
 
 
 late TabController _tabController;
@@ -38,18 +38,22 @@ late TabController _tabController;
           dividerHeight: 0,
           controller: _tabController,
           tabs: [
-            Tab(icon: Icon(Icons.subscriptions), text: 'Baixar do YouTube'),
+            Tab(icon: Icon(Icons.info), text: '任务列表'),
+            Tab(icon: Icon(Icons.subscriptions), text: '视频下载'),
+
             Tab(
               icon: Icon(Icons.settings),
-              text: 'Configurações',
+              text: '设置',
             ),
-            Tab(icon: Icon(Icons.info), text: 'Créditos'),
+            
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
+                    const Task02Screen(),
+
           Padding(
             padding: const EdgeInsets.all(30.0),
             child: YoutubePage(
@@ -62,7 +66,7 @@ late TabController _tabController;
               child: ConfigScreen(),
             ),
           ),
-          const Task02Screen(),
+          
         ],
       ),
     );

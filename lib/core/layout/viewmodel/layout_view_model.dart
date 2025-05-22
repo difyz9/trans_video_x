@@ -17,12 +17,12 @@ class LayoutViewModel extends _$LayoutViewModel{
 
   late final List<SidebarItem> _sidebarItems =  [
     SidebarItem(key: 'home', icon: Icons.home, route: HomeRoute()),
-    SidebarItem(key: "video", icon: Icons.video_call, route: VideoRoute()),
+    SidebarItem(key: "task", icon: Icons.task, route: TaskRoute()),
 
     // SidebarItem(key: "upload", icon: Icons.upload, route: UploadRoute()),
-    SidebarItem(key: "task", icon: Icons.task, route: TaskRoute()),
+    // SidebarItem(key: "task", icon: Icons.task, route: TaskRoute()),
     SidebarItem(key: "setting", icon: Icons.settings, route: SettingRoute()),
-    SidebarItem(key: "task02", icon: Icons.history, route: Task02Route()),
+    // SidebarItem(key: "task02", icon: Icons.history, route: Task02Route()),
     // SidebarItem(key: "upload02", icon: Icons.upload, route: Upload02Route()),
 
     

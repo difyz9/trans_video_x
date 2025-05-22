@@ -217,9 +217,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            const Text('上传视频文件开始翻译', style: TextStyle(fontSize: 14, color: Colors.grey)),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            // const Text('上传视频文件开始翻译', style: TextStyle(fontSize: 14, color: Colors.grey)),
+            // const SizedBox(height: 24),
 
             // Language Selection Row
             Row(
@@ -290,13 +290,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             FileDropWidget(
               onFilesSelected: _handleFilesSelected,
               initialFiles: const [],
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
 
             // Recent Tasks Section
             Row(

@@ -35,12 +35,13 @@ late TabController _tabController;
           dividerHeight: 0,
           controller: _tabController,
           tabs: [
-            Tab(icon: Icon(Icons.subscriptions), text: 'Baixar do YouTube'),
+            Tab(icon: Icon(Icons.subscriptions), text: '视频下载'),
+            Tab(icon: Icon(Icons.info), text: '任务列表'),
             Tab(
               icon: Icon(Icons.settings),
-              text: 'Configurações',
+              text: '配置',
             ),
-            Tab(icon: Icon(Icons.info), text: 'Créditos'),
+            
           ],
         ),
       ),
@@ -53,13 +54,14 @@ late TabController _tabController;
               tabController: _tabController,
             ),
           ),
+           const InfoScreen(),
           SingleChildScrollView(
             child: const Padding(
               padding: EdgeInsets.all(30.0),
               child: ConfigScreen(),
             ),
           ),
-          const InfoScreen(),
+         
         ],
       ),
     );

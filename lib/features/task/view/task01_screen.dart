@@ -12,14 +12,14 @@ import 'package:trans_video_x/features/task/provider/task_provider.dart';
 import 'package:trans_video_x/core/widget/task_status_indicator.dart';
 
 @RoutePage()
-class TaskScreen extends ConsumerStatefulWidget {
-  const TaskScreen({super.key});
+class Task01Screen extends ConsumerStatefulWidget {
+  const Task01Screen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _TaskScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _Task01ScreenState();
 }
 
-class _TaskScreenState extends ConsumerState<TaskScreen> {
+class _Task01ScreenState extends ConsumerState<Task01Screen> {
   late Box<AddUrlModel> _urlBox;
   bool _isLoading = true;
   // Audio and frames upload endpoints

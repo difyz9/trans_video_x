@@ -22,7 +22,7 @@ class FileDropWidget extends StatefulWidget {
     this.height = 200, // 默认高度
     this.width = 200,
     this.allowedExtensions = const ['mp4', 'avi', 'mov', 'mkv', 'wmv', 'flv'], // 默认允许的视频格式
-    this.maxFileSizeInBytes = 2 * 1024 * 1024 * 1024, // 默认2GB
+    this.maxFileSizeInBytes = 5 * 1024 * 1024 * 1024, // 默认5GB
     this.initialFiles,
   });
 

@@ -278,25 +278,25 @@ class _YoutubePageState extends State<YoutubePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        YoutubeUrlWidget(listarYoutube: listarYoutube, baixarYoutube: baixarYoutube, onChanged: youtubeUrlOnChanged),
-        if (carregando || pronto) ...[
-          const SizedBox(height: 20),
-          Skeletonizer(enabled: carregando, child: VideoPreview(video: video)),
-          const SizedBox(height: 5),
-          const Divider(),
-          const SizedBox(height: 20),
-          Expanded(
-            child: Row(
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          YoutubeUrlWidget(listarYoutube: listarYoutube, baixarYoutube: baixarYoutube, onChanged: youtubeUrlOnChanged),
+          if (carregando || pronto) ...[
+            const SizedBox(height: 20),
+            Skeletonizer(enabled: carregando, child: VideoPreview(video: video)),
+            const SizedBox(height: 5),
+            const Divider(),
+            const SizedBox(height: 20),
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   flex: 4,
                   child: Skeletonizer(
                     enabled: carregando,
-                    child: SingleChildScrollView(
+                    
                       child: Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Column(
@@ -325,15 +325,15 @@ class _YoutubePageState extends State<YoutubePage> {
                                 value: mostrarTabela,
                                 enabled: (video?.items.length ?? 0) > 1,
                                 onChanged: tabelaCheckboxOnChanged,
-                                title: 'Mostrar tabela',
-                                subtitle: 'Mostrar informações avançadas em formato de tabela'),
+                                title: '显示详情',
+                                subtitle: '显示可用的视频格式和分辨率'),
                             if (temDeps)
                               TileCheckbox(
                                   value: converter,
                                   enabled: (video?.items.length ?? 0) > 1,
                                   onChanged: converterCheckboxOnChanged,
-                                  title: 'Converter',
-                                  subtitle: 'Habilitar conversão para outros formatos'),
+                                  title: '转换',
+                                  subtitle: '启用转换为其他格式'),
                             const SizedBox(height: 20),
                             Visibility(
                               visible: converter && pronto && temDeps,
@@ -346,7 +346,7 @@ class _YoutubePageState extends State<YoutubePage> {
                           ],
                         ),
                       ),
-                    ),
+                    
                   ),
                 ),
                 if (video != null && mostrarTabela && !carregando)
@@ -356,9 +356,9 @@ class _YoutubePageState extends State<YoutubePage> {
                           YoutubeTable(items: video!.items, idSelecionado: idSelecionado, onSelected: tableOnSelected))
               ],
             ),
-          ),
-        ]
-      ],
+          ],
+        ],
+      ),
     );
   }
 }

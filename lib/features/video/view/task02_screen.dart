@@ -148,36 +148,6 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
     final tabTitles = ['全部', '处理中', '已完成', '失败'];
     return Column(
       children: [
-        // Padding(
-        //   padding: const EdgeInsets.all(1.0),
-        //   child: Row(
-        //     children: [
-        //       const Text("任务列表", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        //       Spacer(),
-        //       Consumer(builder: (context, ref, _) { // Consumer for polling indicator
-        //         final isPolling = ref.watch(isPollingProvider);
-        //         if (isPolling) {
-        //           return const Padding(
-        //             padding: EdgeInsets.only(right: 8.0),
-        //             child: SizedBox(
-        //               width: 16,
-        //               height: 16,
-        //               child: CircularProgressIndicator(strokeWidth: 2),
-        //             ),
-        //           );
-        //         }
-        //         return const SizedBox.shrink();
-        //       }),
-        //       IconButton(
-        //         onPressed: () {
-        //           _startProcessingUrls();
-        //         },
-        //         icon: const Icon(Icons.refresh)
-        //       ),
-        //       // IconButton(onPressed: (){}, icon: const Icon(Icons.filter_list)), // Filter button, functionality TBD
-        //     ],
-        //   ),
-        // ),
         TabBar(
           controller: _tabController,
           tabs: tabTitles.map((title) {
@@ -186,18 +156,45 @@ class _Task02ScreenState extends ConsumerState<Task02Screen>
           }).toList(),
         ),
         Expanded(
-          child: ValueListenableBuilder(
-            valueListenable: _urlBox.listenable(),
-            builder: (context, Box<AddUrlModel> box, _) {
-              // Rebuild TabBarView children when box changes or task statuses change
-              // The taskStatusProvider is watched in the main build method, triggering rebuilds
-              return TabBarView(
-                controller: _tabController,
-                children: tabTitles.map((title) {
-                  return _buildTaskList(_getFilteredTasks(title));
-                }).toList(),
-              );
-            }
+          child: Stack( // Added Stack widget
+            children: [
+              ValueListenableBuilder(
+                valueListenable: _urlBox.listenable(),
+                builder: (context, Box<AddUrlModel> box, _) {
+                  // Rebuild TabBarView children when box changes or task statuses change
+                  // The taskStatusProvider is watched in the main build method, triggering rebuilds
+                  return TabBarView(
+                    controller: _tabController,
+                    children: tabTitles.map((title) {
+                      return _buildTaskList(_getFilteredTasks(title));
+                    }).toList(),
+                  );
+                }
+              ),
+              Positioned( // Added Positioned widget for buttons
+                top: 8.0,
+                right: 8.0,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: () {
+                        _startProcessingUrls();
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.filter_list),
+                      onPressed: () {
+                        // TODO: Implement filter functionality
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Filter button pressed')),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ],

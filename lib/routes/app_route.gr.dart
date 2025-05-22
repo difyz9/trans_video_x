@@ -15,18 +15,19 @@ import 'package:trans_video_x/core/layout/view/content_screen.dart' as _i1;
 import 'package:trans_video_x/core/layout/view/layout_screen.dart' as _i5;
 import 'package:trans_video_x/features/home/history_screen.dart' as _i3;
 import 'package:trans_video_x/features/home/home_screen.dart' as _i4;
-import 'package:trans_video_x/features/home/upload02_screen.dart' as _i12;
-import 'package:trans_video_x/features/home/upload_screen.dart' as _i14;
+import 'package:trans_video_x/features/home/upload02_screen.dart' as _i13;
+import 'package:trans_video_x/features/home/upload_screen.dart' as _i15;
 import 'package:trans_video_x/features/login/login_page.dart' as _i6;
 import 'package:trans_video_x/features/login/register_page.dart' as _i7;
 import 'package:trans_video_x/features/settings/setting_screen.dart' as _i8;
-import 'package:trans_video_x/features/task/view/task02_screen.dart' as _i9;
-import 'package:trans_video_x/features/task/view/task03_screen.dart' as _i10;
-import 'package:trans_video_x/features/task/view/task_screen.dart' as _i11;
+import 'package:trans_video_x/features/task/view/task01_screen.dart' as _i9;
+import 'package:trans_video_x/features/task/view/task02_screen%20copy.dart'
+    as _i11;
 import 'package:trans_video_x/features/upload/view/upload03_screen.dart'
-    as _i13;
-import 'package:trans_video_x/features/video/video_screen.dart' as _i15;
+    as _i14;
+import 'package:trans_video_x/features/video/task_screen.dart' as _i12;
 import 'package:trans_video_x/features/video/view/download_screen.dart' as _i2;
+import 'package:trans_video_x/features/video/view/task02_screen.dart' as _i10;
 import 'package:trans_video_x/features/video/view/youtube_page.dart' as _i16;
 
 /// generated route for
@@ -181,7 +182,23 @@ class SettingRoute extends _i17.PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [_i9.Task02Screen]
+/// [_i9.Task01Screen]
+class Task01Route extends _i17.PageRouteInfo<void> {
+  const Task01Route({List<_i17.PageRouteInfo>? children})
+    : super(Task01Route.name, initialChildren: children);
+
+  static const String name = 'Task01Route';
+
+  static _i17.PageInfo page = _i17.PageInfo(
+    name,
+    builder: (data) {
+      return const _i9.Task01Screen();
+    },
+  );
+}
+
+/// generated route for
+/// [_i10.Task02Screen]
 class Task02Route extends _i17.PageRouteInfo<void> {
   const Task02Route({List<_i17.PageRouteInfo>? children})
     : super(Task02Route.name, initialChildren: children);
@@ -191,13 +208,13 @@ class Task02Route extends _i17.PageRouteInfo<void> {
   static _i17.PageInfo page = _i17.PageInfo(
     name,
     builder: (data) {
-      return const _i9.Task02Screen();
+      return const _i10.Task02Screen();
     },
   );
 }
 
 /// generated route for
-/// [_i10.Task03Screen]
+/// [_i11.Task03Screen]
 class Task03Route extends _i17.PageRouteInfo<void> {
   const Task03Route({List<_i17.PageRouteInfo>? children})
     : super(Task03Route.name, initialChildren: children);
@@ -207,13 +224,13 @@ class Task03Route extends _i17.PageRouteInfo<void> {
   static _i17.PageInfo page = _i17.PageInfo(
     name,
     builder: (data) {
-      return const _i10.Task03Screen();
+      return const _i11.Task03Screen();
     },
   );
 }
 
 /// generated route for
-/// [_i11.TaskScreen]
+/// [_i12.TaskScreen]
 class TaskRoute extends _i17.PageRouteInfo<void> {
   const TaskRoute({List<_i17.PageRouteInfo>? children})
     : super(TaskRoute.name, initialChildren: children);
@@ -223,13 +240,13 @@ class TaskRoute extends _i17.PageRouteInfo<void> {
   static _i17.PageInfo page = _i17.PageInfo(
     name,
     builder: (data) {
-      return const _i11.TaskScreen();
+      return const _i12.TaskScreen();
     },
   );
 }
 
 /// generated route for
-/// [_i12.Upload02Screen]
+/// [_i13.Upload02Screen]
 class Upload02Route extends _i17.PageRouteInfo<void> {
   const Upload02Route({List<_i17.PageRouteInfo>? children})
     : super(Upload02Route.name, initialChildren: children);
@@ -239,13 +256,13 @@ class Upload02Route extends _i17.PageRouteInfo<void> {
   static _i17.PageInfo page = _i17.PageInfo(
     name,
     builder: (data) {
-      return const _i12.Upload02Screen();
+      return const _i13.Upload02Screen();
     },
   );
 }
 
 /// generated route for
-/// [_i13.Upload03Screen]
+/// [_i14.Upload03Screen]
 class Upload03Route extends _i17.PageRouteInfo<void> {
   const Upload03Route({List<_i17.PageRouteInfo>? children})
     : super(Upload03Route.name, initialChildren: children);
@@ -255,13 +272,13 @@ class Upload03Route extends _i17.PageRouteInfo<void> {
   static _i17.PageInfo page = _i17.PageInfo(
     name,
     builder: (data) {
-      return const _i13.Upload03Screen();
+      return const _i14.Upload03Screen();
     },
   );
 }
 
 /// generated route for
-/// [_i14.UploadScreen]
+/// [_i15.UploadScreen]
 class UploadRoute extends _i17.PageRouteInfo<void> {
   const UploadRoute({List<_i17.PageRouteInfo>? children})
     : super(UploadRoute.name, initialChildren: children);
@@ -271,23 +288,7 @@ class UploadRoute extends _i17.PageRouteInfo<void> {
   static _i17.PageInfo page = _i17.PageInfo(
     name,
     builder: (data) {
-      return const _i14.UploadScreen();
-    },
-  );
-}
-
-/// generated route for
-/// [_i15.VideoScreen]
-class VideoRoute extends _i17.PageRouteInfo<void> {
-  const VideoRoute({List<_i17.PageRouteInfo>? children})
-    : super(VideoRoute.name, initialChildren: children);
-
-  static const String name = 'VideoRoute';
-
-  static _i17.PageInfo page = _i17.PageInfo(
-    name,
-    builder: (data) {
-      return const _i15.VideoScreen();
+      return const _i15.UploadScreen();
     },
   );
 }
