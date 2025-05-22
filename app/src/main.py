@@ -6,7 +6,10 @@ from app.models import db, User
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 import os  # Added for instance path
+from dotenv import load_dotenv
 
+
+load_dotenv()
 app = Flask(__name__)
 
 # Configure SQLAlchemy
