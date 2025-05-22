@@ -55,7 +55,7 @@ void main() async {
 
     await AppConfig.instance.initialize();
 
-    ApiService().startServer();
+    // ApiService().startServer();
     await CosService.initialize(
       appId: appId,
       secretId: secretId,

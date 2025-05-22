@@ -21,8 +21,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Recommended to disable
 
 db.init_app(app)
 scheduler = BackgroundScheduler()
-
 port = 55001
+
 
 def query_data():
     with app.app_context():
@@ -50,5 +50,5 @@ app.register_blueprint(url_bp, url_prefix='/api')  # Register the URL task bluep
 def hello_world():
     return "<p>Hello, World!</p>"
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port, debug=True)
+
+app.run(port=port)
